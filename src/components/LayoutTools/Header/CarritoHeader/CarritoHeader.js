@@ -1,98 +1,121 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import BotonComprar from '@/components/Productos/Cards/BotonComprar/BotonComprar';
+import CarritoService from '@/services/CarritoService';
 
+// Componente para formatear precios
+const FormatoPrecio = ({ precio }) => {
+    const precioFormateado = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(precio);
+
+    return <span>{precioFormateado}</span>;
+};
+
+// Componente para el contador de cantidad
+const ContadorCantidad = ({ cantidad, onCambio }) => {
+    return (
+        <div className="flex items-center gap-2 my-2">
+            <button
+                onClick={() => onCambio(cantidad - 1)}
+                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            >
+                -
+            </button>
+            <input
+                type="number"
+                value={cantidad}
+                onChange={(e) => onCambio(parseInt(e.target.value))}
+                className="w-16 text-center border rounded p-1"
+                min="1"
+                max="10"
+            />
+            <button
+                onClick={() => onCambio(cantidad + 1)}
+                className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+            >
+                +
+            </button>
+        </div>
+    );
+};
+
+// Componente para cada item del carrito
+const ItemCarrito = ({ item, index, onActualizarCantidad, onEliminar }) => {
+    return (
+        <div className="flex items-center gap-4 mb-4 p-2 border rounded">
+            <img src={item.imagen}
+                alt={item.nombre}
+                className="w-20 h-20 object-cover rounded" />
+            <div className="flex-1">
+                <h3 className="font-bold">{item.nombre}</h3>
+                <p className="text-orange-500">
+                    <FormatoPrecio precio={item.precio} />
+                </p>
+                <ContadorCantidad
+                    cantidad={item.cantidad}
+                    onCambio={(nuevaCantidad) => onActualizarCantidad(index, nuevaCantidad)}
+                />
+                <p className="text-sm text-gray-500">
+                    Subtotal: <FormatoPrecio precio={item.precio * item.cantidad} />
+                </p>
+            </div>
+            <button onClick={() => onEliminar(index)}
+                className="text-red-500">
+                🗑️
+            </button>
+        </div>
+    );
+};
+
+// Componente principal
 const CarritoHeader = () => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [productos, setProductos] = useState([]);
     const [total, setTotal] = useState(0);
     const [cantidadTotal, setCantidadTotal] = useState(0);
 
-    const formatearPrecio = (precio) => {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(precio);
+    const actualizarEstadoCarrito = (productosCarrito) => {
+        const totales = CarritoService.calcularTotales(productosCarrito);
+        setProductos(productosCarrito);
+        setTotal(totales.suma);
+        setCantidadTotal(totales.cantidad);
     };
 
-    const onCompraExitosa = () => {
-        setProductos([]);
-        setTotal(0);
-        setMostrarModal(false);
-        setCantidadTotal(0);
-    };
-
-    // Verificar carrito cada 500ms
     useEffect(() => {
         const intervalo = setInterval(() => {
-            let carritoGuardado = localStorage.getItem('carrito');
-            
-            if (carritoGuardado) {
-                let productosCarrito = JSON.parse(carritoGuardado);
-                let cantidad = 0;
-                let suma = 0;
-
-                // Sumar cantidades y total
-                for (let i = 0; i < productosCarrito.length; i++) {
-                    if (productosCarrito[i].cantidad) {
-                        cantidad = cantidad + productosCarrito[i].cantidad;
-                        suma = suma + (productosCarrito[i].precio * productosCarrito[i].cantidad);
-                    }
-                }
-
-                setProductos(productosCarrito);
-                setTotal(suma);
-                setCantidadTotal(cantidad);
-            } else {
-                setProductos([]);
-                setTotal(0);
-                setCantidadTotal(0);
-            }
+            const productosCarrito = CarritoService.obtenerCarrito();
+            actualizarEstadoCarrito(productosCarrito);
         }, 500);
 
         return () => clearInterval(intervalo);
     }, []);
 
     const actualizarCantidad = (index, nuevaCantidad) => {
-        if (nuevaCantidad < 1 || nuevaCantidad > 10) {
-            return;
-        }
+        if (nuevaCantidad < 1 || nuevaCantidad > 10) return;
 
-        let productosActuales = [...productos];
+        const productosActuales = [...productos];
         productosActuales[index].cantidad = nuevaCantidad;
-        
-        let suma = 0;
-        let cantidad = 0;
-        
-        for (let i = 0; i < productosActuales.length; i++) {
-            suma = suma + (productosActuales[i].precio * productosActuales[i].cantidad);
-            cantidad = cantidad + productosActuales[i].cantidad;
-        }
-
-        localStorage.setItem('carrito', JSON.stringify(productosActuales));
-        setProductos(productosActuales);
-        setTotal(suma);
-        setCantidadTotal(cantidad);
+        CarritoService.agregarProducto(productosActuales[index], 0);
+        actualizarEstadoCarrito(productosActuales);
     };
 
     const eliminarProducto = (index) => {
-        let productosActuales = [...productos];
+        const productosActuales = [...productos];
         productosActuales.splice(index, 1);
-
-        let suma = 0;
-        let cantidad = 0;
-        
-        for (let i = 0; i < productosActuales.length; i++) {
-            suma = suma + (productosActuales[i].precio * productosActuales[i].cantidad);
-            cantidad = cantidad + productosActuales[i].cantidad;
-        }
-
         localStorage.setItem('carrito', JSON.stringify(productosActuales));
-        setProductos(productosActuales);
-        setTotal(suma);
-        setCantidadTotal(cantidad);
+        actualizarEstadoCarrito(productosActuales);
+    };
+
+    const onCompraExitosa = () => {
+        CarritoService.limpiarCarrito();
+        setProductos([]);
+        setTotal(0);
+        setMostrarModal(false);
+        setCantidadTotal(0);
     };
 
     return (
@@ -119,46 +142,13 @@ const CarritoHeader = () => {
                         <div className="flex-1 overflow-y-auto p-4">
                             {productos.length > 0 ? (
                                 productos.map((item, index) => (
-                                    <div key={index} className="flex items-center gap-4 mb-4 p-2 border rounded">
-                                        <img src={item.imagen}
-                                            alt={item.nombre}
-                                            className="w-20 h-20 object-cover rounded" />
-                                        <div className="flex-1">
-                                            <h3 className="font-bold">{item.nombre}</h3>
-                                            <p className="text-orange-500">
-                                                {formatearPrecio(item.precio)}
-                                            </p>
-                                            <div className="flex items-center gap-2 my-2">
-                                                <button 
-                                                    onClick={() => actualizarCantidad(index, item.cantidad - 1)}
-                                                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                                                >
-                                                    -
-                                                </button>
-                                                <input 
-                                                    type="number"
-                                                    value={item.cantidad}
-                                                    onChange={(e) => actualizarCantidad(index, parseInt(e.target.value))}
-                                                    className="w-16 text-center border rounded p-1"
-                                                    min="1"
-                                                    max="10"
-                                                />
-                                                <button 
-                                                    onClick={() => actualizarCantidad(index, item.cantidad + 1)}
-                                                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-                                            <p className="text-sm text-gray-500">
-                                                Subtotal: {formatearPrecio(item.precio * item.cantidad)}
-                                            </p>
-                                        </div>
-                                        <button onClick={() => eliminarProducto(index)}
-                                            className="text-red-500">
-                                            🗑️
-                                        </button>
-                                    </div>
+                                    <ItemCarrito
+                                        key={index}
+                                        item={item}
+                                        index={index}
+                                        onActualizarCantidad={actualizarCantidad}
+                                        onEliminar={eliminarProducto}
+                                    />
                                 ))
                             ) : (
                                 <p className="text-center text-gray-500 mt-10">
@@ -171,7 +161,7 @@ const CarritoHeader = () => {
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-xl font-bold">Total:</span>
                                 <span className="text-2xl text-orange-500 font-bold">
-                                    {formatearPrecio(total)}
+                                    <FormatoPrecio precio={total} />
                                 </span>
                             </div>
                             <BotonComprar esCarrito={true} onCompraExitosa={onCompraExitosa} />
@@ -183,4 +173,4 @@ const CarritoHeader = () => {
     );
 };
 
-export default CarritoHeader; 
+export default CarritoHeader;

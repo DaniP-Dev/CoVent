@@ -1,6 +1,7 @@
 import React from 'react';
 import CarritoHeader from './CarritoHeader/CarritoHeader';
 import AddUserHeader from './AddUserHeader/AddUserHeader';
+import CerrarSesion from './CerrarSesion/CerrarSesion';
 
 const Header = ({ ruta }) => {
     const mostrarBotonesMarket = ruta === 'market';
@@ -30,6 +31,7 @@ const Header = ({ ruta }) => {
                                 <button className="bg-white text-orange-500 px-4 py-2 rounded-md">
                                     Ventas
                                 </button>
+                                <CerrarSesion />
                             </>
                         )}
                     </div>
