@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import Content from '@/components/LayoutTools/Content/Content';
 import Header from '@/components/LayoutTools/Header/Header';
