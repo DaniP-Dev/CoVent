@@ -1,0 +1,253 @@
+[
+    {
+      "id": 1,
+      "nombre": "Camiseta Algodón Premium",
+      "descripcion": "Camiseta de algodón 100% suave y cómoda, disponible en varios colores.",
+      "precio": 35000,
+      "stock": 15,
+      "categoria": "Ropa",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 2,
+      "nombre": "Zapatos Deportivos",
+      "descripcion": "Zapatos ideales para correr o actividades deportivas, diseñados para máxima comodidad.",
+      "precio": 150000,
+      "stock": 10,
+      "categoria": "Calzado",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 3,
+      "nombre": "Mochila Escolar",
+      "descripcion": "Mochila espaciosa y resistente, perfecta para uso diario o escolar.",
+      "precio": 45000,
+      "stock": 20,
+      "categoria": "Accesorios",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 4,
+      "nombre": "Reloj Deportivo",
+      "descripcion": "Reloj a prueba de agua con múltiples funciones, incluyendo cronómetro y alarma.",
+      "precio": 80000,
+      "stock": 8,
+      "categoria": "Accesorios",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 5,
+      "nombre": "Auriculares Bluetooth",
+      "descripcion": "Auriculares inalámbricos con excelente calidad de sonido y batería de larga duración.",
+      "precio": 120000,
+      "stock": 12,
+      "categoria": "Tecnología",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 6,
+      "nombre": "Silla de Oficina",
+      "descripcion": "Silla ergonómica ajustable, ideal para largas horas de trabajo.",
+      "precio": 220000,
+      "stock": 5,
+      "categoria": "Muebles",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 7,
+      "nombre": "Botella Térmica",
+      "descripcion": "Botella que mantiene tus bebidas calientes o frías por más de 12 horas.",
+      "precio": 25000,
+      "stock": 30,
+      "categoria": "Accesorios",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 8,
+      "nombre": "Smartwatch Fitness",
+      "descripcion": "Reloj inteligente con seguimiento de actividad física y monitoreo de salud.",
+      "precio": 300000,
+      "stock": 7,
+      "categoria": "Tecnología",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 9,
+      "nombre": "Lentes de Sol Polarizados",
+      "descripcion": "Lentes de sol con protección UV y diseño moderno.",
+      "precio": 50000,
+      "stock": 18,
+      "categoria": "Accesorios",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 10,
+      "nombre": "Sudadera Deportiva",
+      "descripcion": "Conjunto de sudadera y pantalón, ideal para entrenamientos o uso casual.",
+      "precio": 80000,
+      "stock": 25,
+      "categoria": "Ropa",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 11,
+      "nombre": "Teclado Mecánico RGB",
+      "descripcion": "Teclado con iluminación personalizable, diseñado para gamers.",
+      "precio": 180000,
+      "stock": 15,
+      "categoria": "Tecnología",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 12,
+      "nombre": "Bicicleta de Montaña",
+      "descripcion": "Bicicleta resistente con suspensión doble para rutas exigentes.",
+      "precio": 1200000,
+      "stock": 4,
+      "categoria": "Deportes",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 13,
+      "nombre": "Lámpara LED Escritorio",
+      "descripcion": "Lámpara con luz ajustable y diseño moderno para oficinas.",
+      "precio": 40000,
+      "stock": 22,
+      "categoria": "Hogar",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 14,
+      "nombre": "Juego de Sartenes",
+      "descripcion": "Set de 3 sartenes antiadherentes de alta calidad.",
+      "precio": 75000,
+      "stock": 10,
+      "categoria": "Cocina",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 15,
+      "nombre": "Parlante Portátil",
+      "descripcion": "Parlante Bluetooth con sonido envolvente y batería recargable.",
+      "precio": 95000,
+      "stock": 14,
+      "categoria": "Tecnología",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 16,
+      "nombre": "Colchón Ortopédico",
+      "descripcion": "Colchón con soporte ergonómico para un descanso reparador.",
+      "precio": 850000,
+      "stock": 6,
+      "categoria": "Muebles",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 17,
+      "nombre": "Casco para Ciclismo",
+      "descripcion": "Casco liviano con diseño aerodinámico y ajuste personalizado.",
+      "precio": 60000,
+      "stock": 12,
+      "categoria": "Deportes",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 18,
+      "nombre": "Estuche para Celular",
+      "descripcion": "Estuche resistente a impactos para protección máxima.",
+      "precio": 20000,
+      "stock": 40,
+      "categoria": "Accesorios",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 19,
+      "nombre": "Cámara de Seguridad",
+      "descripcion": "Cámara con visión nocturna y acceso remoto por app.",
+      "precio": 250000,
+      "stock": 8,
+      "categoria": "Hogar",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 20,
+      "nombre": "Juego de Cubiertos",
+      "descripcion": "Set de 24 piezas de acero inoxidable.",
+      "precio": 50000,
+      "stock": 20,
+      "categoria": "Cocina",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 21,
+      "nombre": "Bolso Casual",
+      "descripcion": "Bolso práctico y elegante para uso diario.",
+      "precio": 40000,
+      "stock": 18,
+      "categoria": "Accesorios",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 22,
+      "nombre": "Planta Decorativa",
+      "descripcion": "Planta artificial con maceta decorativa.",
+      "precio": 30000,
+      "stock": 25,
+      "categoria": "Hogar",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 23,
+      "nombre": "Mesa Plegable",
+      "descripcion": "Mesa multifuncional ideal para espacios pequeños.",
+      "precio": 110000,
+      "stock": 10,
+      "categoria": "verga",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    },
+    {
+      "id": 24,
+      "nombre": "Cortina Blackout",
+      "descripcion": "Cortina opaca para bloquear la luz y mejorar el descanso.",
+      "precio": 70000,
+      "stock": 15,
+      "categoria": "Hogar",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": false
+    },
+    {
+      "id": 25,
+      "nombre": "Cargador Inalámbrico",
+      "descripcion": "Base de carga rápida para dispositivos compatibles.",
+      "precio": 85000,
+      "stock": 12,
+      "categoria": "Tecnología",
+      "imagen": "https://via.placeholder.com/150",
+      "destacado": true
+    }
+  ]
+  
