@@ -29,10 +29,7 @@ class AuthService {
                 throw new Error('Firebase Auth no está inicializado correctamente');
             }
 
-            auth.useDeviceLanguage();
-            
             const resultado = await signInWithPopup(auth, googleProvider);
-
             const token = await resultado.user.getIdToken();
             
             document.cookie = `auth_token=${token}; path=/; max-age=3600; secure; samesite=strict`;
