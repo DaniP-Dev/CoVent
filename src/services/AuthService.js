@@ -37,29 +37,16 @@ class AuthService {
             // Verificar si el usuario ya tiene una tienda
             const tieneTienda = await AuthService.verificarTiendaExistente(resultado.user.uid);
             
-            // Si es nuevo usuario, crear estructura de tienda
-            if (!tieneTienda) {
-                const datosTienda = {
-                    nombre: resultado.user.displayName || 'Mi Tienda',
-                    email: resultado.user.email,
-                    telefono: '',  // Se puede actualizar después
-                    id: resultado.user.uid
-                };
-
-                await AuthService.crearEstructuraTienda(resultado.user.uid, datosTienda);
-            }
-            
             return {
                 exito: true,
                 usuario: resultado.user,
                 token: token,
-                tieneTienda: true  // Ahora siempre será true porque se crea automáticamente
+                tieneTienda: tieneTienda  // Ahora refleja el estado real
             };
         } catch (error) {
-            console.error('Error de autenticación:', error);
             return {
                 exito: false,
-                mensaje: "Error al iniciar sesión con Google",
+                mensaje: "Error en la autenticación",
                 error: error.message
             };
         }
