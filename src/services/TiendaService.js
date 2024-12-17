@@ -143,6 +143,33 @@ class TiendaService {
             return false;
         }
     }
+
+    static async obtenerNombreTienda(uid) {
+        try {
+            const tiendaRef = doc(db, 'tiendas', uid);
+            const tiendaDoc = await getDoc(tiendaRef);
+            
+            if (!tiendaDoc.exists()) {
+                return {
+                    exito: false,
+                    mensaje: "Tienda no encontrada"
+                };
+            }
+
+            const datosTienda = tiendaDoc.data();
+            return {
+                exito: true,
+                nombre: datosTienda.info.nombre
+            };
+        } catch (error) {
+            console.error('Error al obtener nombre de tienda:', error);
+            return {
+                exito: false,
+                mensaje: "Error al obtener nombre de tienda",
+                error: error.message
+            };
+        }
+    }
 }
 
 export default TiendaService;

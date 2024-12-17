@@ -1,6 +1,6 @@
 import { auth, googleProvider, db } from '@/config/firebase/firebaseConfig';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection } from 'firebase/firestore';
 import TiendaService from '@/services/TiendaService';
 
 class AuthService {
@@ -34,13 +34,26 @@ class AuthService {
             
             document.cookie = `auth_token=${token}; path=/; max-age=3600; secure; samesite=strict`;
             
+            // Verificar si el usuario ya tiene una tienda
             const tieneTienda = await AuthService.verificarTiendaExistente(resultado.user.uid);
+            
+            // Si es nuevo usuario, crear estructura de tienda
+            if (!tieneTienda) {
+                const datosTienda = {
+                    nombre: resultado.user.displayName || 'Mi Tienda',
+                    email: resultado.user.email,
+                    telefono: '',  // Se puede actualizar después
+                    id: resultado.user.uid
+                };
+
+                await AuthService.crearEstructuraTienda(resultado.user.uid, datosTienda);
+            }
             
             return {
                 exito: true,
                 usuario: resultado.user,
                 token: token,
-                tieneTienda: tieneTienda
+                tieneTienda: true  // Ahora siempre será true porque se crea automáticamente
             };
         } catch (error) {
             console.error('Error de autenticación:', error);
@@ -82,27 +95,51 @@ class AuthService {
         try {
             const tiendaRef = doc(db, 'tiendas', uid);
             
-            // Estructura básica de la tienda
+            // Estructura base completa de la tienda
             const estructuraTienda = {
-                ...datosTienda,
-                createdAt: new Date(),
-                updatedAt: new Date(),
+                info: {
+                    nombre: datosTienda.nombre,
+                    email: datosTienda.email,
+                    telefono: datosTienda.telefono,
+                    fechaCreacion: new Date(),
+                    activo: true
+                },
                 configuracion: {
-                    tema: 'default',
                     moneda: 'COP',
                     impuestos: {
-                        iva: 19
+                        iva: 19,
+                        retencionFuente: 0,
+                        retencionICA: 0
+                    },
+                    notificaciones: {
+                        stockBajo: true,
+                        nuevoPedido: true,
+                        ventaRealizada: true
                     }
                 },
-                colecciones: {
-                    productos: [],
-                    categorias: ['General'],
-                    pedidos: [],
-                    clientes: []
+                metricas: {
+                    ventas: {
+                        total: 0,
+                        mes: 0,
+                        dia: 0
+                    },
+                    productos: {
+                        total: 0,
+                        activos: 0,
+                        agotados: 0
+                    },
+                    clientes: {
+                        total: 0,
+                        activos: 0
+                    }
                 }
             };
 
+            // Crear documento principal de la tienda
             await setDoc(tiendaRef, estructuraTienda);
+
+            // Crear colecciones base
+            await this.crearColeccionesBase(uid);
 
             return {
                 exito: true,
@@ -115,6 +152,58 @@ class AuthService {
                 mensaje: "Error al crear estructura de tienda",
                 error: error.message
             };
+        }
+    }
+
+    static async crearColeccionesBase(uid) {
+        const colecciones = [
+            {
+                nombre: 'lotes',
+                documentoInicial: {
+                    total: 0,
+                    ultimaActualizacion: new Date()
+                }
+            },
+            {
+                nombre: 'productos',
+                documentoInicial: {
+                    total: 0,
+                    categorias: ['General'],
+                    ultimaActualizacion: new Date()
+                }
+            },
+            {
+                nombre: 'pedidos',
+                documentoInicial: {
+                    total: 0,
+                    pendientes: 0,
+                    ultimaActualizacion: new Date()
+                }
+            },
+            {
+                nombre: 'clientes',
+                documentoInicial: {
+                    total: 0,
+                    ultimaActualizacion: new Date()
+                }
+            },
+            {
+                nombre: 'metricas',
+                documentoInicial: {
+                    ventas: {
+                        diarias: [],
+                        mensuales: [],
+                        anuales: []
+                    },
+                    ultimaActualizacion: new Date()
+                }
+            }
+        ];
+
+        for (const coleccion of colecciones) {
+            const coleccionRef = collection(db, 'tiendas', uid, coleccion.nombre);
+            const metadataRef = doc(coleccionRef, '_metadata');
+            await setDoc(metadataRef, coleccion.documentoInicial);
         }
     }
 }
