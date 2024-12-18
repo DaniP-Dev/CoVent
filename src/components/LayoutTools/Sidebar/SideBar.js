@@ -52,7 +52,14 @@ const SideBar = () => {
     // esto es lo que se ve en la pantalla
     // es una barrita verde con botones
     return (
-        <div ref={sidebarRef} className={`bg-green-500 min-h-full ${anchoSidebar === ANCHO_MINIMO ? 'w-10' : 'w-64'}`}>
+        <div 
+            ref={sidebarRef} 
+            className={`bg-green-500 h-full ${
+                anchoSidebar === ANCHO_MINIMO 
+                    ? 'w-10' 
+                    : 'w-64 fixed z-50 left-0 top-[64px] bottom-0'
+            }`}
+        >
             <button
                 onClick={alternarSidebar}
                 className="text-white w-full p-2 hover:bg-green-600 flex justify-center"

@@ -5,11 +5,11 @@ import Header from '@/components/LayoutTools/Header/Header';
 
 const MarketLayout = ({ children }) => {
     return (
-        <div className="min-h-screen flex flex-col overflow-x-hidden">
-            <div className="flex-none w-full">
+        <div className="h-screen flex flex-col overflow-hidden">
+            <div className="flex-none">
                 <Header ruta="market" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
                 <Content>
                     {children}
                 </Content>

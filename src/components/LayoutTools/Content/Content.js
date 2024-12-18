@@ -1,8 +1,9 @@
 import React from 'react';
+import './Content.css';
 
 const Content = ({ children }) => {
     return (
-        <div className="flex flex-1 bg-blue-500 w-screen">
+        <div className="content-container">
             {children}
         </div>
     );
