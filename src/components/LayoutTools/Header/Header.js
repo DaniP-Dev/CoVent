@@ -6,6 +6,7 @@ import TiendaService from '@/services/TiendaService';
 import CarritoHeader from './CarritoHeader/CarritoHeader';
 import AddUserHeader from './AddUserHeader/AddUserHeader';
 import CerrarSesion from './CerrarSesion/CerrarSesion';
+import Inventario from './Inventario/Inventario';
 
 const Header = ({ ruta }) => {
     const router = useRouter();
@@ -69,12 +70,10 @@ const Header = ({ ruta }) => {
 
                             {mostrarBotonesAdmin && (
                                 <>
-                                    <button className="bg-white text-orange-500 px-4 py-2 rounded-md">
-                                        Inventario
-                                    </button>
+                                    <Inventario />
                                     <button
                                         onClick={() => window.open('/market', '_blank')}
-                                        className="bg-white text-orange-500 px-4 py-2 rounded-md"
+                                        className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
                                     >
                                         Ver tienda
                                     </button>
@@ -97,12 +96,7 @@ const Header = ({ ruta }) => {
 
                                     {mostrarBotonesAdmin && (
                                         <>
-                                            <button 
-                                                className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
-                                                onClick={() => setMenuAbierto(false)}
-                                            >
-                                                Inventario
-                                            </button>
+                                            <Inventario />
                                             <button
                                                 onClick={() => {
                                                     window.open('/market', '_blank');
