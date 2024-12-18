@@ -97,8 +97,11 @@ const SideBar = () => {
                 <div 
                     id="sidebarExpanded"
                     ref={sidebarRef}
-                    className="fixed left-0 bottom-0 w-64 bg-green-500 z-50"
-                    style={{ top: currentTop }}
+                    className="fixed left-0 w-64 bg-green-500 z-50"
+                    style={{ 
+                        top: currentTop,
+                        height: 'calc(100% + 100vh - 64px)'
+                    }}
                 >
                     <button
                         onClick={alternarSidebar}
