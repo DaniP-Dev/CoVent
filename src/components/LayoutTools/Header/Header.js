@@ -96,6 +96,7 @@ const Header = ({ ruta }) => {
 
                                     {mostrarBotonesAdmin && (
                                         <>
+                                        
                                             <Inventario />
                                             <button
                                                 onClick={() => {
