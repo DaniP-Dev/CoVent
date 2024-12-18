@@ -1,3 +1,4 @@
+'use client';
 import { auth, googleProvider, db } from '@/config/firebase/firebaseConfig';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection } from 'firebase/firestore';

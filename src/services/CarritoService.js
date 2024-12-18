@@ -1,3 +1,4 @@
+'use client';
 // Clase base para validación de carrito
 class ValidadorCarrito {
     static validarProducto(producto) {
