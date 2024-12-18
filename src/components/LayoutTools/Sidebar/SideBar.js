@@ -12,15 +12,41 @@ const SideBar = () => {
     const ANCHO_MAXIMO = 64;
 
     useEffect(() => {
-        const clickFuera = (evento) => {
-            if (sidebarRef.current && !sidebarRef.current.contains(evento.target)) {
-                cerrarSidebar();
+        const handleScroll = () => {
+            const headerHeight = 64; // altura del header
+            const scrollTop = window.scrollY;
+            const sidebarPlaceholder = document.getElementById('sidebarPlaceholder');
+            const sidebarExpanded = document.getElementById('sidebarExpanded');
+            
+            // Calculamos la posición progresiva
+            const newTop = Math.max(0, headerHeight - scrollTop);
+            
+            if (sidebarPlaceholder) {
+                if (scrollTop > 0) {
+                    sidebarPlaceholder.style.position = 'fixed';
+                    sidebarPlaceholder.style.top = `${newTop}px`;
+                } else {
+                    sidebarPlaceholder.style.position = '';
+                    sidebarPlaceholder.style.top = '';
+                }
+            }
+
+            if (sidebarExpanded) {
+                sidebarExpanded.style.top = `${newTop}px`;
             }
         };
 
-        document.addEventListener('mousedown', clickFuera);
-        return () => document.removeEventListener('mousedown', clickFuera);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const clickFuera = (evento) => {
+        if (sidebarRef.current && !sidebarRef.current.contains(evento.target)) {
+            cerrarSidebar();
+        }
+    };
+
+    document.addEventListener('mousedown', clickFuera);
 
     const alternarSidebar = () => {
         let nuevoAncho = anchoSidebar === ANCHO_MINIMO ? ANCHO_MAXIMO : ANCHO_MINIMO;
@@ -50,14 +76,13 @@ const SideBar = () => {
     return (
         <>
             {/* Sidebar placeholder - mantiene el espacio */}
-            <div className="w-10 h-full bg-green-500">
+            <div id="sidebarPlaceholder" className="w-10 h-full bg-green-500">
                 <button
                     onClick={alternarSidebar}
                     className="text-white w-full p-2 hover:bg-green-600 flex justify-center"
                 >
                     ☰
                 </button>
-                {/* Botones con solo iconos */}
                 <div>
                     {botonesMenu.map((boton, indice) => (
                         <button
@@ -74,6 +99,7 @@ const SideBar = () => {
             {/* Sidebar expandible */}
             {anchoSidebar !== ANCHO_MINIMO && (
                 <div 
+                    id="sidebarExpanded"
                     ref={sidebarRef}
                     className="fixed left-0 top-[64px] bottom-0 w-64 bg-green-500 z-50"
                 >
