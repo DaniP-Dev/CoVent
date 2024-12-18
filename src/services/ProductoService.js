@@ -1,6 +1,6 @@
 'use client';
 import { db } from '@/config/firebase/firebaseConfig';
-import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
 
 // Clase base para validación de productos
 class ValidadorProducto {
@@ -141,6 +141,60 @@ class ProductoService {
             return {
                 exito: false,
                 mensaje: "Error al actualizar el stock",
+                error: error.message
+            };
+        }
+    }
+
+    static async obtenerCategorias(tiendaId) {
+        try {
+            const metadataRef = doc(db, 'tiendas', tiendaId, 'productos', '_metadata');
+            const docSnap = await getDoc(metadataRef);
+            
+            if (docSnap.exists()) {
+                return {
+                    exito: true,
+                    datos: docSnap.data().categorias || ['General']
+                };
+            }
+            return {
+                exito: true,
+                datos: ['General']
+            };
+        } catch (error) {
+            return {
+                exito: false,
+                mensaje: "Error al obtener categorías",
+                error: error.message
+            };
+        }
+    }
+
+    static async agregarCategoria(tiendaId, nuevaCategoria) {
+        try {
+            const metadataRef = doc(db, 'tiendas', tiendaId, 'productos', '_metadata');
+            const docSnap = await getDoc(metadataRef);
+            
+            let categorias = ['General'];
+            if (docSnap.exists()) {
+                categorias = docSnap.data().categorias || ['General'];
+            }
+
+            if (!categorias.includes(nuevaCategoria)) {
+                categorias.push(nuevaCategoria);
+                await updateDoc(metadataRef, {
+                    categorias: categorias
+                });
+            }
+
+            return {
+                exito: true,
+                datos: categorias
+            };
+        } catch (error) {
+            return {
+                exito: false,
+                mensaje: "Error al agregar categoría",
                 error: error.message
             };
         }
