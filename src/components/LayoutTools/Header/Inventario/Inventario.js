@@ -24,70 +24,63 @@ const Inventario = () => {
     const [loteSeleccionado, setLoteSeleccionado] = useState(null);
     const [cantidadActualizar, setCantidadActualizar] = useState('1');
     const [toastFlotante, setToastFlotante] = useState({ visible: false, mensaje: '' });
+    const [inputActivo, setInputActivo] = useState(false);
 
     const formatearPrecio = (valor) => {
         if (valor === null || valor === undefined || valor === '') {
             return '';
         }
 
-        let numero = 0;
+        const numero = parseFloat(valor.toString().replace(/[^\d]/g, ''));
         
-        const valorLimpio = valor.toString().replace(/[^\d]/g, '');
-        
-        if (valorLimpio.length > 0) {
-            numero = parseFloat(valorLimpio);
-        }
-
         return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true,
         }).format(numero);
     };
 
     const desformatearPrecio = (valor) => {
         if (valor === null || valor === undefined) {
-            return '0';
+            return '0,00';
         }
 
-        const numeroLimpio = valor.toString().replace(/[^\d]/g, '');
-        
-        if (numeroLimpio.length === 0) {
-            return '0';
-        }
-
-        return numeroLimpio;
+        // Mantener el formato con puntos y comas
+        return valor.toString()
+            .replace(/[^\d.,]/g, '') // Mantener solo números, puntos y comas
+            .replace(/\s/g, ''); // Eliminar espacios
     };
 
     const calcularLoteConIva = (precioLote, iva) => {
-        const precioBase = parseInt(desformatearPrecio(precioLote));
+        // Convertir el precio manteniendo el formato
+        const precioBase = parseFloat(precioLote.replace(/\./g, '').replace(',', '.'));
         const ivaValue = parseInt(iva) / 100;
         const montoIva = precioBase * ivaValue;
-        return precioBase + montoIva;
+        const total = precioBase + montoIva;
+        
+        // Devolver el resultado formateado
+        return new Intl.NumberFormat('es-CO', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true,
+        }).format(total);
     };
 
     const calcularPrecioMinimo = (loteConIva, cantidad) => {
         const cantidadNumerica = parseInt(cantidad) || 1;
-        if (loteConIva <= 0) return formatearPrecioMinimo(0);
         
-        const precioMinimo = loteConIva / cantidadNumerica;
-        return formatearPrecioMinimo(precioMinimo);
-    };
-
-    const formatearPrecioMinimo = (valor) => {
-        if (!valor && valor !== 0) return '';
+        if (!loteConIva || loteConIva === '0,00') return '0,00';
         
-        // Convertir a número y manejar decimales
-        const numero = parseFloat(valor);
+        // Convertir el precio manteniendo el formato
+        const precioLimpio = parseFloat(loteConIva.replace(/\./g, '').replace(',', '.'));
+        const precioMinimo = precioLimpio / cantidadNumerica;
         
-        // Formatear con 2 decimales
+        // Devolver el resultado formateado
         return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-        }).format(numero);
+            useGrouping: true,
+        }).format(precioMinimo);
     };
 
     useEffect(() => {
@@ -120,30 +113,37 @@ const Inventario = () => {
         setFormData(prev => {
             const newData = { ...prev };
 
-            switch (name) {
-                case 'precioLote': {
-                    const precioLimpio = desformatearPrecio(value);
-                    newData.precioLote = formatearPrecio(precioLimpio);
-                    break;
-                }
-                
-                case 'cantidad': {
-                    const cantidadValida = Math.max(parseInt(value) || 1, 1);
-                    newData.cantidad = cantidadValida.toString();
-                    break;
-                }
-                
-                case 'iva': {
-                    newData.iva = value;
-                    break;
-                }
-                
-                default:
-                    newData[name] = value;
+            if (name === 'precioLote') {
+                // Permitir solo números mientras se escribe
+                const soloNumeros = value.replace(/\D/g, '');
+                newData.precioLote = soloNumeros;
+            } else {
+                newData[name] = value;
             }
-            
+
             return newData;
         });
+    };
+
+    const handleInputBlur = (e) => {
+        const { name, value } = e.target;
+        setInputActivo(false);
+
+        if (name === 'precioLote' && value) {
+            setFormData(prev => ({
+                ...prev,
+                precioLote: formatearPrecio(value)
+            }));
+        }
+    };
+
+    const handleInputFocus = () => {
+        setInputActivo(true);
+        // Cuando el input recibe el foco, mostrar solo los números
+        setFormData(prev => ({
+            ...prev,
+            precioLote: prev.precioLote.replace(/[^\d]/g, '')
+        }));
     };
 
     const mostrarNotificacion = (mensaje, tipo = 'success') => {
@@ -172,8 +172,9 @@ const Inventario = () => {
 
             const datosParaEnviar = {
                 ...formData,
-                precioLote: parseInt(desformatearPrecio(formData.precioLote)),
-                precioUnidad: parseInt(desformatearPrecio(formData.precioUnidad)),
+                // Guardar los precios manteniendo el formato con puntos y comas
+                precioLote: formData.precioLote.replace(/[^\d.,]/g, ''),
+                precioUnidad: formData.precioUnidad.replace(/[^\d.,]/g, ''),
                 cantidad: parseInt(formData.cantidad),
                 iva: parseInt(formData.iva),
                 fechaCreacion: new Date(),
@@ -283,6 +284,14 @@ const Inventario = () => {
             console.error('Error:', error);
             mostrarNotificacion('Error al actualizar la cantidad', 'error');
         }
+    };
+
+    // Agregar esta función para manejar el foco en el input de cantidad
+    const handleCantidadFocus = () => {
+        setFormData(prev => ({
+            ...prev,
+            cantidad: ''  // Limpiar el campo cuando recibe el foco
+        }));
     };
 
     return (
@@ -397,9 +406,11 @@ const Inventario = () => {
                                             name="cantidad"
                                             value={formData.cantidad}
                                             onChange={handleInputChange}
+                                            onFocus={handleCantidadFocus}
+                                            min="1"
+                                            placeholder="Cantidad"
                                             className="mt-1 block w-full rounded-md border border-gray-300 p-2"
                                             required
-                                            min="1"
                                         />
                                     </div>
 
@@ -412,8 +423,10 @@ const Inventario = () => {
                                             name="precioLote"
                                             value={formData.precioLote}
                                             onChange={handleInputChange}
-                                            className="mt-1 block w-full rounded-md border border-gray-300 p-2"
-                                            required
+                                            onFocus={handleInputFocus}
+                                            onBlur={handleInputBlur}
+                                            placeholder="Precio del lote"
+                                            className="w-full p-1.5 border rounded text-sm"
                                         />
                                     </div>
                                 </div>
@@ -433,11 +446,6 @@ const Inventario = () => {
                                             <option value="0">0%</option>
                                             <option value="19">19%</option>
                                         </select>
-                                        {!puedeEditarIva && (
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                Ingrese cantidad y precio del lote primero
-                                            </p>
-                                        )}
                                     </div>
 
                                     <div>

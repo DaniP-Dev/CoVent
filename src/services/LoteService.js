@@ -15,7 +15,9 @@ class ValidadorLote {
             errores.push("La cantidad debe ser mayor a 0");
         }
         
-        if (lote.precioLote <= 0) {
+        // Validar el precio con el nuevo formato
+        const precioLimpio = parseFloat(lote.precioLote.replace(/\./g, '').replace(',', '.'));
+        if (isNaN(precioLimpio) || precioLimpio <= 0) {
             errores.push("El precio del lote debe ser mayor a 0");
         }
         
@@ -67,19 +69,14 @@ class LoteService {
             const nuevoLote = {
                 nombreProducto: datosLote.nombreProducto,
                 cantidad: parseInt(datosLote.cantidad),
-                precioLote: parseInt(datosLote.precioLote),
+                precioLote: datosLote.precioLote,
+                precioUnidad: datosLote.precioUnidad,
                 iva: parseInt(datosLote.iva),
-                precioUnidad: parseInt(datosLote.precioUnidad),
                 loteConIva: datosLote.loteConIva,
                 fechaCreacion: new Date(),
                 proveedor: datosLote.proveedor || 'No especificado',
                 estado: parseInt(datosLote.cantidad) > 0 ? 'disponible' : 'agotado',
-                actualizaciones: [
-                    ManejadorActualizaciones.crearActualizacion(
-                        datosLote.cantidad,
-                        'Creación inicial del lote'
-                    )
-                ]
+                actualizaciones: datosLote.actualizaciones
             };
 
             const docRef = await addDoc(lotesRef, nuevoLote);
@@ -116,10 +113,18 @@ class LoteService {
             const cantidadActual = loteDoc.data().cantidad;
             const nuevaCantidad = cantidadActual + parseInt(cantidad);
             
-            const actualizacion = ManejadorActualizaciones.crearActualizacion(
-                cantidad,
-                motivo
-            );
+            // Validar que la cantidad no quede negativa
+            if (nuevaCantidad < 0) {
+                return {
+                    exito: false,
+                    mensaje: "La cantidad resultante no puede ser negativa"
+                };
+            }
+            
+            const actualizacion = {
+                ...ManejadorActualizaciones.crearActualizacion(cantidad, motivo),
+                id: new Date().getTime().toString() // Agregar un ID único
+            };
 
             await updateDoc(loteRef, {
                 cantidad: increment(cantidad),
@@ -129,7 +134,8 @@ class LoteService {
 
             return {
                 exito: true,
-                mensaje: "Cantidad actualizada correctamente"
+                mensaje: "Cantidad actualizada correctamente",
+                actualizacionId: actualizacion.id
             };
         } catch (error) {
             return {
@@ -158,6 +164,34 @@ class LoteService {
             return {
                 exito: false,
                 mensaje: "Error al obtener los lotes",
+                error: error.message
+            };
+        }
+    }
+
+    static async eliminarActualizacion(tiendaId, loteId, actualizacionId) {
+        try {
+            const loteRef = doc(db, 'tiendas', tiendaId, 'lotes', loteId);
+            const loteDoc = await getDoc(loteRef);
+            const actualizaciones = loteDoc.data().actualizaciones;
+            
+            // Filtrar la actualización específica
+            const nuevasActualizaciones = actualizaciones.filter(
+                act => act.id !== actualizacionId
+            );
+            
+            await updateDoc(loteRef, {
+                actualizaciones: nuevasActualizaciones
+            });
+
+            return {
+                exito: true,
+                mensaje: "Actualización eliminada correctamente"
+            };
+        } catch (error) {
+            return {
+                exito: false,
+                mensaje: "Error al eliminar la actualización",
                 error: error.message
             };
         }
