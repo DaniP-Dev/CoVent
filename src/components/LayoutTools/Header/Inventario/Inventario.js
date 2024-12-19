@@ -298,7 +298,7 @@ const Inventario = () => {
         <>
             <button 
                 onClick={() => setMostrarModal(true)}
-                className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
+                className="bg-[#E7BCB8] text-[#443054] px-4 py-2 rounded-md w-full hover:bg-[#E7BCB8]/90 transition-colors"
             >
                 Inventario
             </button>
@@ -307,7 +307,7 @@ const Inventario = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 w-96 max-w-full">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-xl font-bold text-orange-500">Nuevo Lote</h2>
+                            <h2 className="text-xl font-bold text-[#4C4376]">Nuevo Lote</h2>
                             <button 
                                 onClick={() => setMostrarModal(false)}
                                 className="text-gray-500 text-2xl"
@@ -375,7 +375,7 @@ const Inventario = () => {
                                 </div>
                                 <button
                                     type="submit"
-                                    className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600"
+                                    className="w-full bg-[#4C4376] text-white py-2 px-4 rounded-md hover:bg-[#3a3359] transition-colors"
                                 >
                                     Actualizar Cantidad
                                 </button>
@@ -478,7 +478,7 @@ const Inventario = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600"
+                                    className="w-full bg-[#4C4376] text-white py-2 px-4 rounded-md hover:bg-[#3a3359] transition-colors"
                                 >
                                     Guardar Lote
                                 </button>

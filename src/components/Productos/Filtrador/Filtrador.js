@@ -153,7 +153,7 @@ const Filtrador = () => {
     };
 
     return (
-        <div className="flex flex-col h-screen w-full bg-orange-500">
+        <div className="flex flex-col h-screen w-full bg-[#4C4376]">
             {/* Barra de filtros */}
             <div className="border-b w-full">
                 {/* Vista móvil */}
@@ -163,7 +163,7 @@ const Filtrador = () => {
                             e.stopPropagation();
                             setMostrarFiltros(!mostrarFiltros);
                         }}
-                        className="w-full p-2 bg-white rounded-md text-sm flex items-center justify-between"
+                        className="w-full p-2 bg-[#E7BCB8]/20 text-[#443054] rounded-md text-sm flex items-center justify-between hover:bg-[#E7BCB8]/30"
                     >
                         <span>Filtros y Búsqueda</span>
                         <span>{mostrarFiltros ? '▽' : '▷'}</span>
@@ -176,7 +176,7 @@ const Filtrador = () => {
                                 placeholder="Buscar..."
                                 value={textoBusqueda}
                                 onChange={(e) => setTextoBusqueda(e.target.value)}
-                                className="w-full p-2 border rounded-md text-sm"
+                                className="w-full p-2 border border-[#4C4376]/20 rounded-md text-sm focus:ring-2 focus:ring-[#4C4376]/30 focus:border-[#4C4376]"
                             />
                             <select
                                 value={categoriaSeleccionada}
@@ -277,22 +277,22 @@ const Filtrador = () => {
             </div>
 
             {/* Footer de paginación */}
-            <div className="flex-none fixed bottom-0 left-0 right-0 bg-orange-500 border-t shadow-lg">
+            <div className="flex-none fixed bottom-0 left-0 right-0 bg-[#4C4376] border-t border-[#E7BCB8]/20 shadow-lg">
                 <div className="flex justify-center items-center p-4 gap-4">
                     <button
                         onClick={() => setPaginaActual(prev => Math.max(1, prev - 1))}
                         disabled={paginaActual === 1}
-                        className="px-4 py-2 bg-white rounded-md disabled:opacity-50"
+                        className="px-4 py-2 bg-[#E7BCB8] text-[#443054] rounded-md disabled:opacity-50 hover:bg-[#E7BCB8]/80"
                     >
                         Anterior
                     </button>
-                    <span className="text-white">
+                    <span className="text-[#E7BCB8]">
                         Página {paginaActual} de {Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA)}
                     </span>
                     <button
                         onClick={() => setPaginaActual(prev => Math.min(Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA), prev + 1))}
                         disabled={paginaActual >= Math.ceil(productosFiltrados.length / PRODUCTOS_POR_PAGINA)}
-                        className="px-4 py-2 bg-white rounded-md disabled:opacity-50"
+                        className="px-4 py-2 bg-[#E7BCB8] text-[#443054] rounded-md disabled:opacity-50 hover:bg-[#E7BCB8]/80"
                     >
                         Siguiente
                     </button>

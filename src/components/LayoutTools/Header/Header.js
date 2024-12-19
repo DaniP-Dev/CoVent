@@ -49,7 +49,7 @@ const Header = ({ ruta }) => {
     };
 
     return (
-        <div className="w-full h-16 bg-orange-500 shadow-md relative">
+        <div className="w-full h-16 bg-[#4C4376] shadow-md relative">
             <div className="container mx-auto h-full px-4">
                 <div className="flex justify-between items-center h-full">
                     <div className="text-white text-xl font-bold">
@@ -80,7 +80,7 @@ const Header = ({ ruta }) => {
                                     <Inventario />
                                     <button
                                         onClick={irATienda}
-                                        className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
+                                        className="bg-[#E7BCB8] text-[#443054] px-4 py-2 rounded-md w-full hover:bg-[#E7BCB8]/90 transition-colors"
                                     >
                                         Ver tienda
                                     </button>
@@ -92,7 +92,7 @@ const Header = ({ ruta }) => {
                         {menuAbierto && (
                             <div 
                                 ref={menuRef}
-                                className="absolute top-16 right-0 bg-orange-500 shadow-lg rounded-b-lg p-4 md:hidden w-full sm:w-64 z-50"
+                                className="absolute top-16 right-0 bg-[#4C4376] shadow-lg rounded-b-lg p-4 md:hidden w-full sm:w-64 z-50"
                             >
                                 <div className="flex flex-col gap-3">
                                     {mostrarBotonesMarket && (
@@ -107,7 +107,7 @@ const Header = ({ ruta }) => {
                                             <Inventario />
                                             <button
                                                 onClick={irATienda}
-                                                className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
+                                                className="bg-[#E7BCB8] text-[#443054] px-4 py-2 rounded-md w-full hover:bg-[#E7BCB8]/90 transition-colors"
                                             >
                                                 Ver tienda
                                             </button>

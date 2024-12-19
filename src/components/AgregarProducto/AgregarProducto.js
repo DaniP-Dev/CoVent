@@ -347,24 +347,27 @@ const AgregarProducto = () => {
     };
 
     return (
-        <div className="h-full bg-white/30 backdrop-blur-sm rounded-lg shadow-lg">
+        <div className="h-full bg-[#E7BCB8]/30 backdrop-blur-sm rounded-lg 
+            shadow-[0_4px_20px_rgba(76,67,118,0.25)] 
+            hover:shadow-[0_8px_25px_rgba(76,67,118,0.35)]
+            transition-shadow duration-300">
             <div className="p-4 flex flex-col h-full">
-                <h2 className="text-xl font-bold mb-3">Agregar Nuevo Producto</h2>
+                <h2 className="text-xl font-bold mb-3 text-[#4C4376]">Agregar Nuevo Producto</h2>
                 
                 {/* Notificación de error/éxito */}
                 {notificacion.visible && (
                     <div className={`mb-4 p-3 rounded-md ${
                         notificacion.tipo === 'error' 
-                            ? 'bg-red-100 text-red-700 border border-red-200'
-                            : 'bg-green-100 text-green-700 border border-green-200'
+                            ? 'bg-[#AE445A]/10 text-[#AE445A] border border-[#AE445A]/20'
+                            : 'bg-[#4C4376]/10 text-[#4C4376] border border-[#4C4376]/20'
                     }`}>
                         {notificacion.mensaje}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-                    <div className="mb-4 bg-white/40 p-3 rounded-lg">
-                        <h3 className="text-md font-semibold mb-2">Información del Lote</h3>
+                    <div className="mb-4 bg-[#E7BCB8]/40 p-3 rounded-lg">
+                        <h3 className="text-md font-semibold mb-2 text-[#443054]">Información del Lote</h3>
                         <div className="space-y-3">
                             <select 
                                 name="loteId"
@@ -493,9 +496,13 @@ const AgregarProducto = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full p-2 rounded text-white ${
-                            loading ? 'bg-gray-400' : 'bg-orange-500 hover:bg-orange-600'
-                        }`}
+                        className={`w-full p-2 rounded-md text-white
+                            ${loading 
+                                ? 'bg-[#443054]/50 cursor-not-allowed' 
+                                : 'bg-[#4C4376] hover:bg-[#3a3359] active:scale-95'
+                            }
+                            transform transition-all duration-200
+                            shadow-md hover:shadow-lg`}
                     >
                         {loading ? 'Creando producto...' : 'Crear Producto'}
                     </button>
@@ -504,11 +511,12 @@ const AgregarProducto = () => {
 
             {/* Toast flotante */}
             {toastFlotante.visible && (
-                <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-up">
+                <div className="fixed bottom-4 right-4 bg-[#4C4376] text-white 
+                    px-6 py-3 rounded-lg shadow-lg z-50 
+                    transform transition-all duration-300 
+                    animate-slide-up">
                     <div className="flex items-center space-x-2">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
+                        <span className="text-xl">✨</span>
                         <span>{toastFlotante.mensaje}</span>
                     </div>
                 </div>

@@ -72,10 +72,10 @@ const SideBar = () => {
     return (
         <>
             <div className="w-10 h-[calc(100vh-64px)] relative z-40">
-                <div id="sidebarPlaceholder" className="w-10 h-full bg-green-500 fixed">
+                <div id="sidebarPlaceholder" className="w-10 h-full bg-[#4C4376] fixed">
                     <button
                         onClick={alternarSidebar}
-                        className="text-white w-full p-2 hover:bg-green-600 flex justify-center"
+                        className="text-[#E7BCB8] w-full p-2 hover:bg-[#3a3359] flex justify-center transition-colors"
                     >
                         ☰
                     </button>
@@ -97,7 +97,7 @@ const SideBar = () => {
                 <div 
                     id="sidebarExpanded"
                     ref={sidebarRef}
-                    className="fixed left-0 w-64 bg-green-500 z-50"
+                    className="fixed left-0 w-64 bg-[#4C4376] z-50"
                     style={{ 
                         top: currentTop,
                         height: `calc(100vh - ${currentTop})`

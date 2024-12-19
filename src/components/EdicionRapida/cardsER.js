@@ -28,34 +28,40 @@ const CardER = ({ producto, onEditar, onEliminar }) => {
     };
 
     return (
-        <div className="border rounded-lg p-4 bg-white/50 backdrop-blur-sm hover:shadow-md transition-all">
-            <h3 className="font-medium text-xl mb-2 truncate">
+        <div className="border border-[#4C4376]/10 rounded-lg p-4 
+        bg-[#E7BCB8]/10 backdrop-blur-sm 
+        hover:shadow-lg hover:border-[#4C4376]/30 
+        hover:bg-[#E7BCB8]/20 
+        hover:transform hover:-translate-y-1 
+        transition-all duration-300 ease-in-out 
+        cursor-pointer">
+            <h3 className="font-medium text-xl mb-2 truncate text-[#443054]">
                 {detalles.nombre || 'Sin nombre'}
             </h3>
             <div className="flex justify-between items-center mb-2">
-                <span className="text-orange-500 font-semibold">
+                <span className="text-[#AE445A] font-semibold">
                     {formatearPrecio(precio)}
                 </span>
-                <span className="text-gray-600">
+                <span className="text-[#443054]/70">
                     Stock: {detalles.stock || 0}
                 </span>
             </div>
-            <p className="text-gray-600 text-base line-clamp-2 mb-2">
+            <p className="text-[#443054]/70 text-base line-clamp-2 mb-2">
                 {detalles.descripcion || 'Sin descripción'}
             </p>
-            <div className="text-sm text-gray-500 mb-3">
+            <div className="text-sm text-[#443054]/60 mb-3">
                 Categoría: {detalles.categoria || 'Sin categoría'}
             </div>
             <div className="flex justify-center space-x-1 mt-4">
                 <button 
                     onClick={() => onEditar(producto)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    className="bg-[#4C4376] text-white px-3 py-1 rounded hover:bg-[#3a3359] transition-colors"
                 >
                     Editar
                 </button>
                 <button 
                     onClick={() => onEliminar(producto.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                    className="bg-[#AE445A] text-white px-3 py-1 rounded hover:bg-[#963a4d] transition-colors"
                 >
                     Eliminar
                 </button>

@@ -93,7 +93,10 @@ const EdicionRapida = () => {
     const totalPaginas = Math.ceil(productosFiltrados.length / productosPorPagina);
 
     return (
-        <div className="h-full bg-white/30 backdrop-blur-sm shadow-lg rounded-lg">
+        <div className="h-full bg-[#E7BCB8]/30 backdrop-blur-sm rounded-lg
+            shadow-[0_4px_20px_rgba(76,67,118,0.25)]
+            hover:shadow-[0_8px_25px_rgba(76,67,118,0.35)]
+            transition-shadow duration-300">
             <div className="p-4 flex flex-col h-full">
                 <div className="mb-2">
                     <input
@@ -101,15 +104,15 @@ const EdicionRapida = () => {
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                         placeholder="Buscar productos..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-[#4C4376]/20 rounded-md focus:ring-2 focus:ring-[#4C4376]/30 focus:border-[#4C4376]"
                     />
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
                     {loading ? (
                         <div className="flex items-center justify-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                            <span className="ml-2 text-gray-600">Cargando productos...</span>
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#4C4376]"></div>
+                            <span className="ml-2 text-[#443054]/70">Cargando productos...</span>
                         </div>
                     ) : productosActuales.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -123,7 +126,7 @@ const EdicionRapida = () => {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-4">No se encontraron productos</div>
+                        <div className="text-center py-4 text-[#443054]/70">No se encontraron productos</div>
                     )}
                 </div>
 
@@ -132,17 +135,17 @@ const EdicionRapida = () => {
                         <button 
                             onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
                             disabled={paginaActual === 1}
-                            className="px-4 py-2 border rounded-md disabled:opacity-50"
+                            className="px-4 py-2 border border-[#4C4376]/20 rounded-md disabled:opacity-50 hover:bg-[#E7BCB8]/20 text-[#443054]"
                         >
                             Anterior
                         </button>
-                        <span className="px-4 py-2">
+                        <span className="px-4 py-2 text-[#443054]">
                             Página {paginaActual} de {totalPaginas}
                         </span>
                         <button 
                             onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
                             disabled={paginaActual === totalPaginas}
-                            className="px-4 py-2 border rounded-md disabled:opacity-50"
+                            className="px-4 py-2 border border-[#4C4376]/20 rounded-md disabled:opacity-50 hover:bg-[#E7BCB8]/20 text-[#443054]"
                         >
                             Siguiente
                         </button>

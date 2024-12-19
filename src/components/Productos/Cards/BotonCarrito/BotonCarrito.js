@@ -17,7 +17,13 @@ const BotonCarrito = ({ producto }) => {
         <div className="relative">
             <button
                 onClick={agregarAlCarrito}
-                className="bg-orange-500 text-white p-2 rounded-md hover:bg-orange-600"
+                className="bg-[#4C4376] text-white p-2 rounded-md 
+                    hover:bg-[#3a3359] 
+                    active:scale-95
+                    transform transition-all duration-200 
+                    shadow-md hover:shadow-lg
+                    flex items-center justify-center
+                    min-w-[40px]"
             >
                 🛒
             </button>

@@ -1,7 +1,7 @@
 .content-container {
     display: flex;
     flex: 1;
-    background-color: rgb(59 130 246); /* Este es el equivalente a bg-blue-500 en Tailwind */
+    background-color: #E7BCB8;
     width: 100%;
     height: 100%;
     overflow: hidden;

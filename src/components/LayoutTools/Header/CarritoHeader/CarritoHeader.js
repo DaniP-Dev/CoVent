@@ -121,10 +121,10 @@ const CarritoHeader = () => {
     return (
         <>
             <button onClick={() => setMostrarModal(true)}
-                className="bg-white text-orange-500 px-4 py-2 rounded-md flex items-center gap-2">
+                className="bg-[#E7BCB8] text-[#443054] px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#E7BCB8]/90 transition-colors">
                 <span className="text-xl">🛒</span>
                 {cantidadTotal > 0 && (
-                    <span className="bg-red-500 text-white text-xs rounded-full px-2">
+                    <span className="bg-[#AE445A] text-white text-xs rounded-full px-2">
                         {cantidadTotal}
                     </span>
                 )}

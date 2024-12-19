@@ -27,7 +27,10 @@ const FormularioCompra = ({
       placeholder="Tu correo"
       value={correo}
       onChange={(e) => setCorreo(e.target.value)}
-      className="w-full p-2 border rounded"
+      className="w-full p-2 border border-[#4C4376]/20 rounded-md 
+        focus:ring-2 focus:ring-[#4C4376]/30 focus:border-[#4C4376] 
+        outline-none transition-all
+        placeholder:text-[#443054]/50"
     />
     
     <input 
@@ -35,13 +38,20 @@ const FormularioCompra = ({
       placeholder="Tu contraseña"
       value={contrasena}
       onChange={(e) => setContrasena(e.target.value)}
-      className="w-full p-2 border rounded"
+      className="w-full p-2 border border-[#4C4376]/20 rounded-md 
+        focus:ring-2 focus:ring-[#4C4376]/30 focus:border-[#4C4376] 
+        outline-none transition-all
+        placeholder:text-[#443054]/50"
     />
     
     <select
       value={medioPago}
       onChange={(e) => setMedioPago(e.target.value)}
-      className="w-full p-2 border rounded"
+      className="w-full p-2 border border-[#4C4376]/20 rounded-md 
+        focus:ring-2 focus:ring-[#4C4376]/30 focus:border-[#4C4376] 
+        outline-none transition-all
+        text-[#443054]
+        bg-white"
     >
       <option value="">Selecciona forma de pago</option>
       {["Efectivo", "Tarjeta", "Nequi", "PSE"].map((medio, index) => (
@@ -49,18 +59,24 @@ const FormularioCompra = ({
       ))}
     </select>
 
-    {error && <p className="text-red-500">{error}</p>}
+    {error && (
+      <p className="text-[#AE445A] text-sm bg-[#AE445A]/10 p-2 rounded-md border border-[#AE445A]/20">
+        ⚠️ {error}
+      </p>
+    )}
 
     <div className="flex gap-2 justify-end mt-4">
       <button 
         onClick={onCancelar}
-        className="px-4 py-2 bg-gray-200 rounded"
+        className="px-4 py-2 bg-[#E7BCB8]/20 text-[#443054] rounded-md
+          hover:bg-[#E7BCB8]/30 transition-colors"
       >
         Cancelar
       </button>
       <button 
         onClick={onConfirmar}
-        className="px-4 py-2 bg-orange-500 text-white rounded"
+        className="px-4 py-2 bg-[#4C4376] text-white rounded-md
+          hover:bg-[#3a3359] transition-colors"
       >
         Confirmar
       </button>
@@ -153,16 +169,22 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
     <div className="relative">
       <button 
         onClick={() => setMostrarFormulario(true)}
-        className="bg-orange-500 text-white p-2 rounded-md hover:bg-orange-600 w-full"
+        className="bg-[#AE445A] text-white p-2 rounded-md w-full
+          hover:bg-[#963a4d]
+          active:scale-95
+          transform transition-all duration-200
+          shadow-md hover:shadow-lg
+          flex items-center justify-center gap-2"
       >
-        {esCarrito ? '💸Comprar Carrito' : '💸'}
+        <span className="text-lg">💸</span>
+        {esCarrito && <span>Comprar Carrito</span>}
       </button>
 
       {mostrarFormulario && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" 
              style={{ zIndex: 1000 }}>
           <div className="bg-white p-6 rounded-lg w-96 relative">
-            <h2 className="text-xl font-bold mb-4">Datos de Compra</h2>
+            <h2 className="text-xl font-bold mb-4 text-[#4C4376]">Datos de Compra</h2>
             
             <FormularioCompra
               correo={correo}
@@ -180,8 +202,14 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
       )}
 
       {mostrarNotificacion && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
-          ¡Compra realizada con éxito! 🎉
+        <div className="fixed top-4 right-4 bg-[#4C4376] text-white 
+          px-6 py-3 rounded-lg shadow-lg 
+          transform transition-all duration-300 
+          animate-slide-down">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">✨</span>
+            ¡Compra realizada con éxito! 🎉
+          </div>
         </div>
       )}
     </div>
