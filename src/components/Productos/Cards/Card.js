@@ -13,6 +13,28 @@ const Card = ({ producto }) => {
     const imagen = detalles.imagen || '/placeholder.jpg';
     const stock = detalles.stock || 0;
 
+    const formatearPrecio = (valor) => {
+        if (!valor && valor !== 0) return '';
+        
+        // Primero remover el punto decimal existente
+        const valorLimpio = valor.toString().replace('.', '');
+        
+        // Ahora sí separar los últimos dos dígitos para decimales
+        const enteros = valorLimpio.slice(0, -2);
+        const decimales = valorLimpio.slice(-2);
+        
+        // Reconstruir el número con el formato correcto
+        const numero = parseFloat(`${enteros}.${decimales}`);
+        
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true,
+        }).format(numero).replace('COP', '$');
+    };
+
     return (
         <div className="bg-white rounded-lg shadow-md p-4 h-full flex flex-col">
             <img 
@@ -25,7 +47,7 @@ const Card = ({ producto }) => {
                 <p className="text-gray-600 text-sm mb-2">{descripcion}</p>
                 <div className="mt-auto">
                     <p className="text-orange-500 font-bold">
-                        ${precio.toLocaleString('es-CO')}
+                        {formatearPrecio(precio)}
                     </p>
                     <p className="text-sm text-gray-500">
                         Stock: {stock}

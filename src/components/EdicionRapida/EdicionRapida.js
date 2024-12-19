@@ -17,21 +17,23 @@ const EdicionRapida = () => {
         const usuario = auth.currentUser;
         if (!usuario) return;
 
-        const cargarProductos = async () => {
-            setLoading(true);
-            try {
-                const resultado = await ProductoService.obtenerProductos(usuario.uid);
-                if (resultado.exito) {
-                    setProductos(resultado.datos);
-                }
-            } catch (error) {
-                console.error("Error al cargar productos:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        const productosRef = collection(db, 'tiendas', usuario.uid, 'productos');
+        
+        // Usar onSnapshot para actualizaciones en tiempo real
+        const unsubscribe = onSnapshot(productosRef, (snapshot) => {
+            const productosData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setProductos(productosData);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error al observar productos:", error);
+            setLoading(false);
+        });
 
-        cargarProductos();
+        // Limpiar el snapshot al desmontar
+        return () => unsubscribe();
     }, []);
 
     const handleEditar = (producto) => {

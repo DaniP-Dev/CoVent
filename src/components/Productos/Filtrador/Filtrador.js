@@ -4,20 +4,43 @@ import Card from '../Cards/Card';
 import datos from '../datos.json';
 import { useParams } from 'next/navigation';
 import ProductoService from '@/services/ProductoService';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/config/firebase/firebaseConfig';
 
 const Filtrador = () => {
     const params = useParams(); // Obtener el slug de la URL
     const [productos, setProductos] = useState([]);
     
     useEffect(() => {
+        const tiendaRef = collection(db, 'tiendas');
+        let unsubscribe;
+
         const cargarProductos = async () => {
-            const resultado = await ProductoService.obtenerProductos(params.slug, 'slug');
-            if (resultado.exito) {
-                setProductos(resultado.datos);
+            try {
+                const tiendaId = await ProductoService.obtenerTiendaIdPorSlug(params.slug);
+                const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
+                
+                // Usar onSnapshot en lugar de una llamada única
+                unsubscribe = onSnapshot(productosRef, (snapshot) => {
+                    const productosData = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    setProductos(productosData);
+                });
+            } catch (error) {
+                console.error("Error al cargar productos:", error);
             }
         };
         
         cargarProductos();
+        
+        // Limpiar el snapshot al desmontar
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
     }, [params.slug]);
 
     // Estados para manejar la búsqueda y la paginación
@@ -36,28 +59,31 @@ const Filtrador = () => {
 
     // Filtrar productos
     const productosFiltrados = productos.filter(producto => {
+        // Obtener los detalles del producto
+        const detalles = producto.details || producto;
+        
         // Filtro por texto de búsqueda
         let pasaTexto = true;
         if (textoBusqueda !== '') {
-            pasaTexto = producto.nombre.toLowerCase().includes(textoBusqueda.toLowerCase());
+            pasaTexto = (detalles.nombre || '').toLowerCase().includes(textoBusqueda.toLowerCase());
         }
 
         // Filtro por categoría
         let pasaCategoria = true;
         if (categoriaSeleccionada !== '') {
-            pasaCategoria = producto.categoria === categoriaSeleccionada;
+            pasaCategoria = (detalles.categoria || '') === categoriaSeleccionada;
         }
 
         // Filtro por precio mínimo
         let pasaPrecioMin = true;
         if (precioMinimo !== '') {
-            pasaPrecioMin = producto.precio >= Number(precioMinimo);
+            pasaPrecioMin = (detalles.precio || 0) >= Number(precioMinimo);
         }
 
         // Filtro por precio máximo
         let pasaPrecioMax = true;
         if (precioMaximo !== '') {
-            pasaPrecioMax = producto.precio <= Number(precioMaximo);
+            pasaPrecioMax = (detalles.precio || 0) <= Number(precioMaximo);
         }
 
         return pasaTexto && pasaCategoria && pasaPrecioMin && pasaPrecioMax;

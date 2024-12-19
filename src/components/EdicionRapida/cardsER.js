@@ -3,6 +3,29 @@ import React from 'react';
 const CardER = ({ producto, onEditar, onEliminar }) => {
     // Extraer los detalles del producto
     const detalles = producto.details || producto;
+    const precio = detalles.precio || 0;
+
+    const formatearPrecio = (valor) => {
+        if (!valor && valor !== 0) return '';
+        
+        // Primero remover el punto decimal existente
+        const valorLimpio = valor.toString().replace('.', '');
+        
+        // Ahora sí separar los últimos dos dígitos para decimales
+        const enteros = valorLimpio.slice(0, -2);
+        const decimales = valorLimpio.slice(-2);
+        
+        // Reconstruir el número con el formato correcto
+        const numero = parseFloat(`${enteros}.${decimales}`);
+        
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true,
+        }).format(numero).replace('COP', '$');
+    };
 
     return (
         <div className="border rounded-lg p-4 bg-white/50 backdrop-blur-sm hover:shadow-md transition-all">
@@ -11,7 +34,7 @@ const CardER = ({ producto, onEditar, onEliminar }) => {
             </h3>
             <div className="flex justify-between items-center mb-2">
                 <span className="text-orange-500 font-semibold">
-                    ${(detalles.precio || 0).toLocaleString('es-CO')}
+                    {formatearPrecio(precio)}
                 </span>
                 <span className="text-gray-600">
                     Stock: {detalles.stock || 0}
@@ -21,7 +44,7 @@ const CardER = ({ producto, onEditar, onEliminar }) => {
                 {detalles.descripcion || 'Sin descripción'}
             </p>
             <div className="text-sm text-gray-500 mb-3">
-                Categoría: {detalles.categoria || 'Sin categoría'}
+                Categoría: {detalles.categoria || 'Sin categor��a'}
             </div>
             <div className="flex justify-center space-x-1 mt-4">
                 <button 

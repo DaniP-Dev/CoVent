@@ -51,19 +51,26 @@ const AgregarProducto = () => {
         return () => unsubscribe();
     }, []);
 
-    // Cargar categorías
+    // Cargar categorías con snapshot
     useEffect(() => {
-        const cargarCategorias = async () => {
-            const usuario = auth.currentUser;
-            if (!usuario) return;
+        const usuario = auth.currentUser;
+        if (!usuario) return;
 
-            const resultado = await ProductoService.obtenerCategorias(usuario.uid);
-            if (resultado.exito) {
-                setCategorias(resultado.datos);
-            }
-        };
+        const productosRef = collection(db, 'tiendas', usuario.uid, 'productos');
+        
+        // Usar onSnapshot para mantener categorías actualizadas
+        const unsubscribe = onSnapshot(productosRef, (snapshot) => {
+            const categoriasUnicas = new Set(['General']);
+            snapshot.docs.forEach(doc => {
+                const categoria = doc.data().details?.categoria;
+                if (categoria) {
+                    categoriasUnicas.add(categoria);
+                }
+            });
+            setCategorias(Array.from(categoriasUnicas));
+        });
 
-        cargarCategorias();
+        return () => unsubscribe();
     }, []);
 
     // Validar autenticación
