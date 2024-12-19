@@ -4,7 +4,6 @@ import CompraService from '@/services/CompraService';
 import CarritoService from '@/services/CarritoService';
 import ProductoService from '@/services/ProductoService';
 import VentasMetricasService from '@/services/metricas/VentasMetricasService';
-import ClientesMetricasService from '@/services/metricas/ClientesMetricasService';
 
 // Valores por defecto
 const CORREO_DEFAULT = 'prueba@prueba.com';
@@ -80,17 +79,16 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
 
   const handleComprar = async () => {
     try {
-      // Primero verificar el carrito
+      // Verificaciones iniciales
       const carrito = CarritoService.obtenerCarrito();
       if (!carrito || carrito.length === 0) {
         setError('El carrito está vacío');
         return;
       }
 
-      // Calcular total
       const totalCompra = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
 
-      // Luego validar el pedido completo
+      // Validación
       const validacion = CompraService.validarCompra({
         cliente: { correo, contrasena },
         medioPago,
@@ -103,7 +101,7 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
         return;
       }
 
-      // Crear el pedido
+      // Crear la compra
       const resultado = await CompraService.crearCompra(tiendaId, {
         cliente: { correo },
         productos: carrito,
@@ -113,12 +111,22 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
 
       if (resultado.exito) {
         try {
-          // Actualizar solo el stock por ahora
-          await Promise.all(
-            carrito.map(item => 
+          await Promise.all([
+            // Actualizar stock
+            ...carrito.map(item => 
               ProductoService.actualizarStock(resultado.tiendaId, item.id, -item.cantidad)
-            )
-          );
+            ),
+            
+            // Registrar métricas de venta
+            VentasMetricasService.registrarVenta(tiendaId, {
+              compraId: resultado.id,
+              productos: carrito,
+              total: totalCompra,
+              fecha: new Date(),
+              cliente: { correo },
+              medioPago
+            })
+          ]);
 
           CarritoService.limpiarCarrito();
           setMostrarNotificacion(true);
@@ -129,8 +137,8 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
             onCompraExitosa();
           }, 1000);
         } catch (error) {
-          console.error('Error actualizando stock:', error);
-          setError('Error al actualizar inventario');
+          console.error('Error actualizando métricas:', error);
+          setError('Compra realizada pero hubo un error actualizando algunas métricas');
         }
       } else {
         setError(resultado.mensaje);

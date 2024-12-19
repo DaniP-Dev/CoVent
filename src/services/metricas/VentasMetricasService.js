@@ -1,6 +1,6 @@
 'use client';
 import { db } from '@/config/firebase/firebaseConfig';
-import { collection, doc, getDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, doc, getDoc, query, where, getDocs, orderBy, limit, addDoc } from 'firebase/firestore';
 
 class VentasMetricasService {
     static async obtenerVentasDiarias(tiendaId, fecha) {
@@ -170,6 +170,47 @@ class VentasMetricasService {
             return {
                 exito: false,
                 mensaje: "Error al obtener horarios de venta",
+                error: error.message
+            };
+        }
+    }
+
+    static async registrarVenta(tiendaId, datosVenta) {
+        try {
+            const metricasRef = collection(db, `tiendas/${tiendaId}/metricas/ventas/registros`);
+            
+            const nuevaMetrica = {
+                compraId: datosVenta.compraId,
+                productos: datosVenta.productos.map(p => ({
+                    id: p.id,
+                    nombre: p.nombre,
+                    cantidad: p.cantidad,
+                    precio: p.precio,
+                    subtotal: p.precio * p.cantidad
+                })),
+                total: datosVenta.total,
+                fecha: datosVenta.fecha,
+                cliente: datosVenta.cliente,
+                medioPago: datosVenta.medioPago,
+                cantidadProductos: datosVenta.productos.reduce((sum, p) => sum + p.cantidad, 0),
+                // Agregar más métricas específicas
+                hora: new Date(datosVenta.fecha).getHours(),
+                dia: new Date(datosVenta.fecha).getDay(),
+                mes: new Date(datosVenta.fecha).getMonth() + 1,
+                año: new Date(datosVenta.fecha).getFullYear()
+            };
+
+            await addDoc(metricasRef, nuevaMetrica);
+
+            return {
+                exito: true,
+                mensaje: "Métricas de venta registradas"
+            };
+        } catch (error) {
+            console.error('Error al registrar métricas de venta:', error);
+            return {
+                exito: false,
+                mensaje: "Error al registrar métricas de venta",
                 error: error.message
             };
         }
