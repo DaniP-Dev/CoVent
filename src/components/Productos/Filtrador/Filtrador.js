@@ -1,48 +1,16 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Card from '../Cards/Card';
-import datos from '../datos.json';
 import { useParams } from 'next/navigation';
 import ProductoService from '@/services/ProductoService';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/config/firebase/firebaseConfig';
 
 const Filtrador = () => {
-    const params = useParams(); // Obtener el slug de la URL
+    const params = useParams();
     const [productos, setProductos] = useState([]);
+    const [categorias, setCategorias] = useState(['General']);
     
-    useEffect(() => {
-        const tiendaRef = collection(db, 'tiendas');
-        let unsubscribe;
-
-        const cargarProductos = async () => {
-            try {
-                const tiendaId = await ProductoService.obtenerTiendaIdPorSlug(params.slug);
-                const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
-                
-                // Usar onSnapshot en lugar de una llamada única
-                unsubscribe = onSnapshot(productosRef, (snapshot) => {
-                    const productosData = snapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    setProductos(productosData);
-                });
-            } catch (error) {
-                console.error("Error al cargar productos:", error);
-            }
-        };
-        
-        cargarProductos();
-        
-        // Limpiar el snapshot al desmontar
-        return () => {
-            if (unsubscribe) {
-                unsubscribe();
-            }
-        };
-    }, [params.slug]);
-
     // Estados para manejar la búsqueda y la paginación
     const [textoBusqueda, setTextoBusqueda] = useState('');
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
@@ -55,7 +23,39 @@ const Filtrador = () => {
     const PRODUCTOS_POR_PAGINA = 10;
 
     // Sacar todas las categorías únicas del JSON
-    const CATEGORIAS = [...new Set(datos.map(producto => producto.categoria))];
+    // const CATEGORIAS = [...new Set(datos.map(producto => producto.categoria))];
+
+    useEffect(() => {
+        let unsubscribeProductos;
+        let unsubscribeCategorias;
+
+        const iniciarObservadores = async () => {
+            try {
+                const tiendaId = await ProductoService.obtenerTiendaIdPorSlug(params.slug);
+                
+                // Observar productos
+                unsubscribeProductos = ProductoService.observarProductos(
+                    tiendaId,
+                    (productosActualizados) => setProductos(productosActualizados)
+                );
+
+                // Observar categorías
+                unsubscribeCategorias = ProductoService.observarCategorias(
+                    tiendaId,
+                    (categoriasActualizadas) => setCategorias(categoriasActualizadas)
+                );
+            } catch (error) {
+                console.error("Error al iniciar observadores:", error);
+            }
+        };
+
+        iniciarObservadores();
+
+        return () => {
+            if (unsubscribeProductos) unsubscribeProductos();
+            if (unsubscribeCategorias) unsubscribeCategorias();
+        };
+    }, [params.slug]);
 
     // Filtrar productos
     const productosFiltrados = productos.filter(producto => {
@@ -182,7 +182,7 @@ const Filtrador = () => {
                                 className="w-full p-2 border rounded-md text-sm"
                             >
                                 <option value="">Categorías</option>
-                                {CATEGORIAS.map((categoria) => (
+                                {categorias.map((categoria) => (
                                     <option key={categoria} value={categoria}>
                                         {categoria}
                                     </option>
@@ -224,7 +224,7 @@ const Filtrador = () => {
                             className="w-full p-2 border rounded-md"
                         >
                             <option value="">Todas las categorías</option>
-                            {CATEGORIAS.map((categoria) => (
+                            {categorias.map((categoria) => (
                                 <option key={categoria} value={categoria}>
                                     {categoria}
                                 </option>

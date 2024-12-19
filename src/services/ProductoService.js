@@ -1,6 +1,6 @@
 'use client';
 import { db } from '@/config/firebase/firebaseConfig';
-import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc, getDoc, query, where } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc, getDoc, query, where, onSnapshot } from 'firebase/firestore';
 import { auth } from '@/config/firebase/firebaseConfig';
 import TiendaService from './TiendaService';
 
@@ -252,6 +252,54 @@ class ProductoService {
         } catch (error) {
             console.error('Error al obtener ID de tienda:', error);
             throw error;
+        }
+    }
+
+    static observarCategorias(tiendaId, callback) {
+        try {
+            const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
+            
+            // Crear snapshot para observar cambios en productos
+            const unsubscribe = onSnapshot(productosRef, (snapshot) => {
+                const categoriasUnicas = new Set(['General']); // Incluir categoría por defecto
+                
+                snapshot.docs.forEach(doc => {
+                    const categoria = doc.data().details?.categoria;
+                    if (categoria) {
+                        categoriasUnicas.add(categoria);
+                    }
+                });
+
+                // Convertir Set a Array y ordenar alfabéticamente
+                const categorias = Array.from(categoriasUnicas).sort();
+                callback(categorias);
+            });
+
+            return unsubscribe;
+        } catch (error) {
+            console.error('Error al observar categorías:', error);
+            callback(['General']); // Devolver al menos la categoría por defecto en caso de error
+            return () => {}; // Devolver función vacía como cleanup
+        }
+    }
+
+    static observarProductos(tiendaId, callback) {
+        try {
+            const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
+            
+            const unsubscribe = onSnapshot(productosRef, (snapshot) => {
+                const productos = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                callback(productos);
+            });
+
+            return unsubscribe;
+        } catch (error) {
+            console.error('Error al observar productos:', error);
+            callback([]);
+            return () => {};
         }
     }
 }
