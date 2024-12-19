@@ -1,6 +1,6 @@
 'use client';
 import { db } from '@/config/firebase/firebaseConfig';
-import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc, getDoc, query, where } from 'firebase/firestore';
 
 // Clase base para validación de productos
 class ValidadorProducto {
@@ -148,53 +148,78 @@ class ProductoService {
 
     static async obtenerCategorias(tiendaId) {
         try {
-            const metadataRef = doc(db, 'tiendas', tiendaId, 'productos', '_metadata');
-            const docSnap = await getDoc(metadataRef);
+            const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
+            const snapshot = await getDocs(productosRef);
             
-            if (docSnap.exists()) {
-                return {
-                    exito: true,
-                    datos: docSnap.data().categorias || ['General']
-                };
-            }
+            // Obtener categorías únicas
+            const categorias = new Set();
+            snapshot.docs.forEach(doc => {
+                const producto = doc.data();
+                if (producto.categoria) {
+                    categorias.add(producto.categoria);
+                }
+            });
+
             return {
                 exito: true,
-                datos: ['General']
+                datos: ['General', ...Array.from(categorias)]
             };
         } catch (error) {
+            console.error('Error al obtener categorías:', error);
             return {
                 exito: false,
-                mensaje: "Error al obtener categorías",
+                mensaje: 'Error al obtener las categorías',
                 error: error.message
             };
         }
     }
 
-    static async agregarCategoria(tiendaId, nuevaCategoria) {
-        try {
-            const metadataRef = doc(db, 'tiendas', tiendaId, 'productos', '_metadata');
-            const docSnap = await getDoc(metadataRef);
-            
-            let categorias = ['General'];
-            if (docSnap.exists()) {
-                categorias = docSnap.data().categorias || ['General'];
-            }
+    static async agregarCategoria(tiendaId, categoria) {
+        // Esta función podría implementarse si necesitas guardar las categorías en un documento separado
+        return {
+            exito: true,
+            datos: ['General', categoria]
+        };
+    }
 
-            if (!categorias.includes(nuevaCategoria)) {
-                categorias.push(nuevaCategoria);
-                await updateDoc(metadataRef, {
-                    categorias: categorias
-                });
-            }
+    static async obtenerProductos(tiendaId) {
+        try {
+            const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
+            const snapshot = await getDocs(productosRef);
+            
+            const productos = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
 
             return {
                 exito: true,
-                datos: categorias
+                datos: productos
             };
         } catch (error) {
+            console.error('Error al obtener productos:', error);
             return {
                 exito: false,
-                mensaje: "Error al agregar categoría",
+                mensaje: 'Error al obtener los productos',
+                error: error.message
+            };
+        }
+    }
+
+    static async eliminarProducto(tiendaId, productoId) {
+        try {
+            const productoRef = doc(db, 'tiendas', tiendaId, 'productos', productoId);
+            await deleteDoc(productoRef);
+
+            return {
+                exito: true,
+                mensaje: 'Producto eliminado correctamente'
+            };
+        } catch (error) {
+            console.error('Error al eliminar producto:', error);
+            return {
+                exito: false,
+                mensaje: 'Error al eliminar el producto',
                 error: error.message
             };
         }

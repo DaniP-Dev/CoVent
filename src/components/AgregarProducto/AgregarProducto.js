@@ -296,7 +296,8 @@ const AgregarProducto = () => {
                 stock: parseInt(formData.cantidad),
                 categoria: formData.categoria,
                 imagen: formData.imagen || 'default.jpg',
-                descripcion: loteSeleccionado.descripcion || ''
+                descripcion: loteSeleccionado.descripcion || '',
+                fechaCreacion: new Date().toISOString()
             };
 
             const resultadoProducto = await ProductoService.crearProducto(usuario.uid, nuevoProducto);
