@@ -25,15 +25,19 @@ const pageLogin = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-[#E7BCB8]/20">
             <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-6 text-center text-orange-500">
+                <h2 className="text-2xl font-bold mb-6 text-center text-[#4C4376]">
                     Admin Login
                 </h2>
                 
                 <button
                     onClick={handleGoogleLogin}
-                    className="w-full bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+                    className="w-full bg-[#4C4376] text-white py-2 px-4 rounded-md 
+                        hover:bg-[#3a3359] 
+                        active:scale-95
+                        transform transition-all duration-200
+                        shadow-md hover:shadow-lg"
                 >
                     Iniciar sesión con Google
                 </button>

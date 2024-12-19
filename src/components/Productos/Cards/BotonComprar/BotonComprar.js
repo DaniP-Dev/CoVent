@@ -4,6 +4,7 @@ import CompraService from '@/services/CompraService';
 import CarritoService from '@/services/CarritoService';
 import ProductoService from '@/services/ProductoService';
 import VentasMetricasService from '@/services/metricas/VentasMetricasService';
+import ModalCompra from './ModalCompra';
 
 // Valores por defecto
 const CORREO_DEFAULT = 'prueba@prueba.com';
@@ -180,26 +181,28 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId 
         {esCarrito && <span>Comprar Carrito</span>}
       </button>
 
-      {mostrarFormulario && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" 
-             style={{ zIndex: 1000 }}>
-          <div className="bg-white p-6 rounded-lg w-96 relative">
-            <h2 className="text-xl font-bold mb-4 text-[#4C4376]">Datos de Compra</h2>
-            
-            <FormularioCompra
-              correo={correo}
-              setCorreo={setCorreo}
-              contrasena={contrasena}
-              setContrasena={setContrasena}
-              medioPago={medioPago}
-              setMedioPago={setMedioPago}
-              error={error}
-              onCancelar={() => setMostrarFormulario(false)}
-              onConfirmar={handleComprar}
-            />
-          </div>
-        </div>
-      )}
+      <ModalCompra isOpen={mostrarFormulario} onClose={() => setMostrarFormulario(false)}>
+        <h2 className="text-xl font-bold mb-4 text-[#4C4376]">Datos de Compra</h2>
+        
+        <button 
+          onClick={() => setMostrarFormulario(false)}
+          className="absolute top-4 right-4 text-[#443054]/60 hover:text-[#443054] transition-colors"
+        >
+          ✕
+        </button>
+        
+        <FormularioCompra
+          correo={correo}
+          setCorreo={setCorreo}
+          contrasena={contrasena}
+          setContrasena={setContrasena}
+          medioPago={medioPago}
+          setMedioPago={setMedioPago}
+          error={error}
+          onCancelar={() => setMostrarFormulario(false)}
+          onConfirmar={handleComprar}
+        />
+      </ModalCompra>
 
       {mostrarNotificacion && (
         <div className="fixed top-4 right-4 bg-[#4C4376] text-white 
