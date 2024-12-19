@@ -3,10 +3,53 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
+  --background: rgb(59 130 246);
   --foreground: #171717;
 }
 
-body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+@layer base {
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  }
+}
+
+@layer components {
+  .dashboard-container {
+    @apply h-full w-full flex flex-col gap-3;
+  }
+
+  .kpis-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3;
+  }
+
+  .kpi-card {
+    @apply bg-white p-3 rounded-lg shadow;
+  }
+
+  .kpi-title {
+    @apply text-xs font-semibold text-gray-600;
+  }
+
+  .kpi-value {
+    @apply text-xl font-bold my-1;
+  }
+
+  .kpi-trend {
+    @apply text-xs text-green-500;
+  }
+
+  .charts-grid {
+    @apply flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 min-h-0;
+    height: calc(100% - 5rem);
+  }
+
+  .chart-container {
+    @apply bg-white rounded-lg shadow h-full flex;
+    min-height: 300px;
+  }
+
+  .content-container {
+    @apply flex-1 p-3 overflow-hidden;
+  }
 }

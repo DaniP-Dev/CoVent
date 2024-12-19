@@ -9,10 +9,12 @@ const AdminLayout = ({ children }) => {
     return (
         <ProtectedRoute>
             <div className="min-h-screen flex flex-col">
-                <Header ruta="admin" className="flex-none" />
+                <Header ruta="admin" className="flex-none h-16" />
                 <div className="flex-1 flex overflow-hidden">
                     <SideBar className="flex-none" />
-                    <Content>{children}</Content>
+                    <main className="flex-1 overflow-hidden">
+                        <Content>{children}</Content>
+                    </main>
                 </div>
             </div>
         </ProtectedRoute>

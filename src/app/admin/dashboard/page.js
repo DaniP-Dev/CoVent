@@ -6,7 +6,6 @@ import VentasHoyChart from '@/components/GraficasChart/Ventas/VentasHoyChart';
 import ProductosTopChart from '@/components/GraficasChart/Productos/ProductosTopChart';
 import BalanceChart from '@/components/GraficasChart/Finanzas/BalanceChart';
 import ClientesTopChart from '@/components/GraficasChart/Clientes/ClientesTopChart';
-import './grafias.css';
 
 const DashboardPage = () => {
     const router = useRouter();
@@ -66,7 +65,7 @@ const DashboardPage = () => {
                 </div>
             </div>
 
-            {/* Gráficos */}
+            {/* Gráficos en grid 2x2 */}
             <div className="charts-grid">
                 <div className="chart-container">
                     <VentasHoyChart tiendaId={tiendaId} />
