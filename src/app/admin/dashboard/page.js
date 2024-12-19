@@ -6,6 +6,7 @@ import VentasHoyChart from '@/components/GraficasChart/Ventas/VentasHoyChart';
 import ProductosTopChart from '@/components/GraficasChart/Productos/ProductosTopChart';
 import BalanceChart from '@/components/GraficasChart/Finanzas/BalanceChart';
 import ClientesTopChart from '@/components/GraficasChart/Clientes/ClientesTopChart';
+import './grafias.css';
 
 const DashboardPage = () => {
     const router = useRouter();
@@ -36,47 +37,47 @@ const DashboardPage = () => {
     }, [router]);
 
     if (!tiendaId) {
-        return <div className="p-4">Cargando...</div>;
+        return <div className="loading">Cargando...</div>;
     }
 
     return (
-        <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden">
-            {/* KPIs Row - Responsive y Compacto */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 p-2">
-                <div className="bg-white p-2 rounded-lg shadow">
-                    <h3 className="text-xs font-semibold text-gray-600">Ventas Hoy</h3>
-                    <p className="text-base lg:text-lg font-bold">$2.500.000</p>
-                    <span className="text-xs text-green-500">↑ 10%</span>
+        <div className="dashboard-container">
+            {/* KPIs */}
+            <div className="kpis-grid">
+                <div className="kpi-card">
+                    <h3 className="kpi-title">Ventas Hoy</h3>
+                    <p className="kpi-value">$2.500.000</p>
+                    <span className="kpi-trend">↑ 10%</span>
                 </div>
-                <div className="bg-white p-2 rounded-lg shadow">
-                    <h3 className="text-xs font-semibold text-gray-600">Promedio Venta</h3>
-                    <p className="text-base lg:text-lg font-bold">$104.166</p>
-                    <span className="text-xs text-green-500">↑ 5%</span>
+                <div className="kpi-card">
+                    <h3 className="kpi-title">Promedio Venta</h3>
+                    <p className="kpi-value">$104.166</p>
+                    <span className="kpi-trend">↑ 5%</span>
                 </div>
-                <div className="bg-white p-2 rounded-lg shadow">
-                    <h3 className="text-xs font-semibold text-gray-600">Margen Promedio</h3>
-                    <p className="text-base lg:text-lg font-bold">35.0%</p>
-                    <span className="text-xs text-green-500">↑ 2%</span>
+                <div className="kpi-card">
+                    <h3 className="kpi-title">Margen Promedio</h3>
+                    <p className="kpi-value">35.0%</p>
+                    <span className="kpi-trend">↑ 2%</span>
                 </div>
-                <div className="bg-white p-2 rounded-lg shadow">
-                    <h3 className="text-xs font-semibold text-gray-600">ROI Diario</h3>
-                    <p className="text-base lg:text-lg font-bold">$0</p>
-                    <span className="text-xs text-green-500">↑ 8%</span>
+                <div className="kpi-card">
+                    <h3 className="kpi-title">ROI Diario</h3>
+                    <p className="kpi-value">$0</p>
+                    <span className="kpi-trend">↑ 8%</span>
                 </div>
             </div>
 
-            {/* Gráficos Grid - Optimizado para laptop */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-2 p-2 min-h-0">
-                <div className="h-[250px] lg:h-full">
+            {/* Gráficos */}
+            <div className="charts-grid">
+                <div className="chart-container">
                     <VentasHoyChart tiendaId={tiendaId} />
                 </div>
-                <div className="h-[250px] lg:h-full">
+                <div className="chart-container">
                     <ProductosTopChart tiendaId={tiendaId} />
                 </div>
-                <div className="h-[250px] lg:h-full">
+                <div className="chart-container">
                     <BalanceChart tiendaId={tiendaId} />
                 </div>
-                <div className="h-[250px] lg:h-full">
+                <div className="chart-container">
                     <ClientesTopChart tiendaId={tiendaId} />
                 </div>
             </div>
