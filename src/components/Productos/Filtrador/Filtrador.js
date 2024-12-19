@@ -2,8 +2,24 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../Cards/Card';
 import datos from '../datos.json';
+import { useParams } from 'next/navigation';
+import ProductoService from '@/services/ProductoService';
 
 const Filtrador = () => {
+    const params = useParams(); // Obtener el slug de la URL
+    const [productos, setProductos] = useState([]);
+    
+    useEffect(() => {
+        const cargarProductos = async () => {
+            const resultado = await ProductoService.obtenerProductos(params.slug, 'slug');
+            if (resultado.exito) {
+                setProductos(resultado.datos);
+            }
+        };
+        
+        cargarProductos();
+    }, [params.slug]);
+
     // Estados para manejar la búsqueda y la paginación
     const [textoBusqueda, setTextoBusqueda] = useState('');
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
@@ -19,7 +35,7 @@ const Filtrador = () => {
     const CATEGORIAS = [...new Set(datos.map(producto => producto.categoria))];
 
     // Filtrar productos
-    const productosFiltrados = datos.filter(producto => {
+    const productosFiltrados = productos.filter(producto => {
         // Filtro por texto de búsqueda
         let pasaTexto = true;
         if (textoBusqueda !== '') {

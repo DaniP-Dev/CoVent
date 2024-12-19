@@ -83,6 +83,9 @@ class AuthService {
         try {
             const tiendaRef = doc(db, 'tiendas', uid);
             
+            // Generar slug único usando el ManejadorSlug de TiendaService
+            const slug = await ManejadorSlug.generarSlugUnico(datosTienda.nombre);
+            
             // Estructura base completa de la tienda
             const estructuraTienda = {
                 info: {
@@ -90,7 +93,9 @@ class AuthService {
                     email: datosTienda.email,
                     telefono: datosTienda.telefono,
                     fechaCreacion: new Date(),
-                    activo: true
+                    activo: true,
+                    slug: slug,
+                    urlTienda: `/market/${slug}`
                 },
                 configuracion: {
                     moneda: 'COP',
@@ -123,21 +128,18 @@ class AuthService {
                 }
             };
 
-            // Crear documento principal de la tienda
             await setDoc(tiendaRef, estructuraTienda);
-
-            // Crear colecciones base
-            await this.crearColeccionesBase(uid);
-
             return {
                 exito: true,
-                mensaje: "Estructura de tienda creada exitosamente"
+                mensaje: "Tienda creada exitosamente",
+                datos: estructuraTienda
             };
+
         } catch (error) {
             console.error('Error al crear estructura de tienda:', error);
             return {
                 exito: false,
-                mensaje: "Error al crear estructura de tienda",
+                mensaje: "Error al crear la estructura de la tienda",
                 error: error.message
             };
         }

@@ -1,6 +1,6 @@
 'use client';
 import { db } from '@/config/firebase/firebaseConfig';
-import { collection, doc, setDoc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, query, where } from 'firebase/firestore';
 
 // Clase base para validación
 class ValidadorTienda {
@@ -29,6 +29,37 @@ class ManejadorErrores {
             telefono: "El teléfono debe tener al menos 7 dígitos"
         };
         return mensajes[campo] || razon;
+    }
+}
+
+// Agregar clase utilitaria para slugs
+class ManejadorSlug {
+    static generarSlug(nombre) {
+        return nombre
+            .toLowerCase()
+            .replace(/[áéíóúñü]/g, c => ({á:'a',é:'e',í:'i',ó:'o',ú:'u',ñ:'n',ü:'u'})[c])
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+    }
+
+    static async validarSlugUnico(slug) {
+        const tiendasRef = collection(db, 'tiendas');
+        const q = query(tiendasRef, where('info.slug', '==', slug));
+        const snapshot = await getDocs(q);
+        return snapshot.empty;
+    }
+
+    static async generarSlugUnico(nombreBase) {
+        let slug = this.generarSlug(nombreBase);
+        let contador = 1;
+        let slugFinal = slug;
+        
+        while (!(await this.validarSlugUnico(slugFinal))) {
+            slugFinal = `${slug}-${contador}`;
+            contador++;
+        }
+        
+        return slugFinal;
     }
 }
 
@@ -67,15 +98,19 @@ class TiendaService {
         }
 
         try {
+            const slug = await ManejadorSlug.generarSlugUnico(datosBasicos.nombre);
             const tiendaRef = doc(db, 'tiendas', datosBasicos.id);
             const fechaActual = new Date();
+            
             const datosTienda = {
                 info: {
                     nombre: datosBasicos.nombre,
                     email: datosBasicos.email,
                     telefono: datosBasicos.telefono,
                     fechaCreacion: fechaActual.toISOString(),
-                    activo: true
+                    activo: true,
+                    slug: slug,
+                    urlTienda: `/market/${slug}`
                 }
             };
 
@@ -167,6 +202,36 @@ class TiendaService {
             return {
                 exito: false,
                 mensaje: "Error al obtener nombre de tienda",
+                error: error.message
+            };
+        }
+    }
+
+    static async obtenerTiendaPorSlug(slug) {
+        try {
+            const tiendasRef = collection(db, 'tiendas');
+            const q = query(tiendasRef, where('info.slug', '==', slug));
+            const snapshot = await getDocs(q);
+            
+            if (snapshot.empty) {
+                return {
+                    exito: false,
+                    mensaje: "Tienda no encontrada"
+                };
+            }
+
+            const tiendaDoc = snapshot.docs[0];
+            return {
+                exito: true,
+                datos: {
+                    id: tiendaDoc.id,
+                    ...tiendaDoc.data()
+                }
+            };
+        } catch (error) {
+            return {
+                exito: false,
+                mensaje: "Error al obtener la tienda",
                 error: error.message
             };
         }

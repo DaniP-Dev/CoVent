@@ -1,6 +1,8 @@
 'use client';
 import { db } from '@/config/firebase/firebaseConfig';
 import { collection, doc, addDoc, updateDoc, getDocs, deleteDoc, getDoc, query, where } from 'firebase/firestore';
+import { auth } from '@/config/firebase/firebaseConfig';
+import TiendaService from './TiendaService';
 
 // Clase base para validación de productos
 class ValidadorProducto {
@@ -182,8 +184,15 @@ class ProductoService {
         };
     }
 
-    static async obtenerProductos(tiendaId) {
+    static async obtenerProductos(identificador, tipo = 'uid') {
         try {
+            let tiendaId = identificador;
+            
+            // Si el identificador es un slug, obtener el uid correspondiente
+            if (tipo === 'slug') {
+                tiendaId = await this.obtenerTiendaIdPorSlug(identificador);
+            }
+
             const productosRef = collection(db, 'tiendas', tiendaId, 'productos');
             const snapshot = await getDocs(productosRef);
             
@@ -207,6 +216,14 @@ class ProductoService {
     }
 
     static async eliminarProducto(tiendaId, productoId) {
+        // Verificar que sea una operación administrativa válida
+        if (!auth.currentUser || auth.currentUser.uid !== tiendaId) {
+            return {
+                exito: false,
+                mensaje: 'No autorizado para realizar esta operación'
+            };
+        }
+
         try {
             const productoRef = doc(db, 'tiendas', tiendaId, 'productos', productoId);
             await deleteDoc(productoRef);
@@ -222,6 +239,19 @@ class ProductoService {
                 mensaje: 'Error al eliminar el producto',
                 error: error.message
             };
+        }
+    }
+
+    static async obtenerTiendaIdPorSlug(slug) {
+        try {
+            const resultado = await TiendaService.obtenerTiendaPorSlug(slug);
+            if (!resultado.exito) {
+                throw new Error(resultado.mensaje);
+            }
+            return resultado.datos.id;
+        } catch (error) {
+            console.error('Error al obtener ID de tienda:', error);
+            throw error;
         }
     }
 }

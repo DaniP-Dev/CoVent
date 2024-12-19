@@ -17,20 +17,21 @@ const EdicionRapida = () => {
         const usuario = auth.currentUser;
         if (!usuario) return;
 
-        const productosRef = collection(db, 'tiendas', usuario.uid, 'productos');
-        const unsubscribe = onSnapshot(productosRef, (snapshot) => {
-            const productosActualizados = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data().details
-            }));
-            setProductos(productosActualizados);
-            setLoading(false);
-        }, (error) => {
-            console.error("Error al escuchar cambios:", error);
-            setLoading(false);
-        });
+        const cargarProductos = async () => {
+            setLoading(true);
+            try {
+                const resultado = await ProductoService.obtenerProductos(usuario.uid);
+                if (resultado.exito) {
+                    setProductos(resultado.datos);
+                }
+            } catch (error) {
+                console.error("Error al cargar productos:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        return () => unsubscribe();
+        cargarProductos();
     }, []);
 
     const handleEditar = (producto) => {
@@ -75,8 +76,9 @@ const EdicionRapida = () => {
     };
 
     const productosFiltrados = productos.filter(producto => {
-        const nombre = producto?.details?.nombre || '';
-        const categoria = producto?.details?.categoria || '';
+        const detalles = producto.details || producto;
+        const nombre = detalles.nombre || '';
+        const categoria = detalles.categoria || '';
         const busquedaMinuscula = busqueda.toLowerCase();
         
         return nombre.toLowerCase().includes(busquedaMinuscula) ||
@@ -103,7 +105,10 @@ const EdicionRapida = () => {
 
                 <div className="flex-1 overflow-y-auto">
                     {loading ? (
-                        <div className="text-center py-4">Cargando productos...</div>
+                        <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                            <span className="ml-2 text-gray-600">Cargando productos...</span>
+                        </div>
                     ) : productosActuales.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {productosActuales.map(producto => (

@@ -10,7 +10,7 @@ import Inventario from './Inventario/Inventario';
 
 const Header = ({ ruta }) => {
     const router = useRouter();
-    const [nombreTienda, setNombreTienda] = useState('Mi Tienda');
+    const [tiendaData, setTiendaData] = useState({ nombre: 'Mi Tienda', slug: '' });
     const [menuAbierto, setMenuAbierto] = useState(false);
     const menuRef = useRef(null);
     const { user } = useAuth();
@@ -18,16 +18,19 @@ const Header = ({ ruta }) => {
     const mostrarBotonesAdmin = ruta === 'admin';
 
     useEffect(() => {
-        const obtenerNombreTienda = async () => {
+        const obtenerDatosTienda = async () => {
             if (user) {
-                const resultado = await TiendaService.obtenerNombreTienda(user.uid);
+                const resultado = await TiendaService.obtenerTienda(user.uid);
                 if (resultado.exito) {
-                    setNombreTienda(resultado.nombre);
+                    setTiendaData({
+                        nombre: resultado.datos.info.nombre,
+                        slug: resultado.datos.info.slug
+                    });
                 }
             }
         };
 
-        obtenerNombreTienda();
+        obtenerDatosTienda();
     }, [user]);
 
     useEffect(() => {
@@ -41,12 +44,16 @@ const Header = ({ ruta }) => {
         return () => document.removeEventListener('mousedown', handleClickFuera);
     }, []);
 
+    const irATienda = () => {
+        window.open(`/market/${tiendaData.slug}`, '_blank');
+    };
+
     return (
         <div className="w-full h-16 bg-orange-500 shadow-md relative">
             <div className="container mx-auto h-full px-4">
                 <div className="flex justify-between items-center h-full">
                     <div className="text-white text-xl font-bold">
-                        {nombreTienda}
+                        {tiendaData.nombre}
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -72,7 +79,7 @@ const Header = ({ ruta }) => {
                                 <>
                                     <Inventario />
                                     <button
-                                        onClick={() => window.open('/market', '_blank')}
+                                        onClick={irATienda}
                                         className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
                                     >
                                         Ver tienda
@@ -99,10 +106,7 @@ const Header = ({ ruta }) => {
                                         
                                             <Inventario />
                                             <button
-                                                onClick={() => {
-                                                    window.open('/market', '_blank');
-                                                    setMenuAbierto(false);
-                                                }}
+                                                onClick={irATienda}
                                                 className="bg-white text-orange-500 px-4 py-2 rounded-md w-full"
                                             >
                                                 Ver tienda
