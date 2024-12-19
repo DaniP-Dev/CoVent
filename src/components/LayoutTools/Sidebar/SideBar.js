@@ -71,8 +71,8 @@ const SideBar = () => {
 
     return (
         <>
-            <div className="w-10 h-full relative z-40">
-                <div id="sidebarPlaceholder" className="w-10 h-full bg-green-500">
+            <div className="w-10 h-[calc(100vh-64px)] relative z-40">
+                <div id="sidebarPlaceholder" className="w-10 h-full bg-green-500 fixed">
                     <button
                         onClick={alternarSidebar}
                         className="text-white w-full p-2 hover:bg-green-600 flex justify-center"
@@ -100,7 +100,7 @@ const SideBar = () => {
                     className="fixed left-0 w-64 bg-green-500 z-50"
                     style={{ 
                         top: currentTop,
-                        height: 'calc(100% + 100vh - 64px)'
+                        height: `calc(100vh - ${currentTop})`
                     }}
                 >
                     <button

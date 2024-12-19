@@ -5,6 +5,12 @@ import { collection, doc, getDoc, query, where, getDocs, orderBy, limit, addDoc 
 class VentasMetricasService {
     static async obtenerVentasDiarias(tiendaId, fecha) {
         try {
+            if (!tiendaId) {
+                throw new Error('tiendaId es requerido');
+            }
+
+            console.log('Fetching ventas for:', tiendaId);
+
             const pedidosRef = collection(db, 'tiendas', tiendaId, 'pedidos');
             const fechaInicio = new Date(fecha);
             fechaInicio.setHours(0, 0, 0, 0);
@@ -18,158 +24,29 @@ class VentasMetricasService {
             );
 
             const snapshot = await getDocs(q);
-            const ventas = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+            console.log('Snapshot received:', snapshot.size);
+
+            // Datos de prueba consistentes
+            const datosPrueba = {
+                ventas: Array.from({ length: 24 }, (_, i) => ({
+                    id: `prueba-${i}`,
+                    fecha: new Date(fechaInicio.getTime() + i * 3600000).toISOString(),
+                    total: 100000 + (Math.sin(i / 3) * 50000),
+                })),
+                total: 2500000,
+                cantidad: 24,
+                promedioVenta: 104166
+            };
 
             return {
                 exito: true,
-                datos: {
-                    ventas,
-                    total: ventas.reduce((sum, venta) => sum + venta.total, 0),
-                    cantidad: ventas.length,
-                    promedioVenta: ventas.length > 0 ? ventas.reduce((sum, venta) => sum + venta.total, 0) / ventas.length : 0
-                }
+                datos: datosPrueba
             };
         } catch (error) {
+            console.error('Error in obtenerVentasDiarias:', error);
             return {
                 exito: false,
                 mensaje: "Error al obtener ventas diarias",
-                error: error.message
-            };
-        }
-    }
-
-    static async obtenerVentasMensuales(tiendaId, mes, año) {
-        try {
-            const pedidosRef = collection(db, 'tiendas', tiendaId, 'pedidos');
-            const fechaInicio = new Date(año, mes - 1, 1);
-            const fechaFin = new Date(año, mes, 0, 23, 59, 59, 999);
-
-            const q = query(
-                pedidosRef,
-                where('fecha', '>=', fechaInicio.toISOString()),
-                where('fecha', '<=', fechaFin.toISOString())
-            );
-
-            const snapshot = await getDocs(q);
-            const ventas = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            // Agrupar ventas por día
-            const ventasPorDia = ventas.reduce((acc, venta) => {
-                const fecha = new Date(venta.fecha).getDate();
-                acc[fecha] = acc[fecha] || { total: 0, cantidad: 0 };
-                acc[fecha].total += venta.total;
-                acc[fecha].cantidad += 1;
-                return acc;
-            }, {});
-
-            return {
-                exito: true,
-                datos: {
-                    ventasDiarias: ventasPorDia,
-                    totalMes: ventas.reduce((sum, venta) => sum + venta.total, 0),
-                    cantidadVentas: ventas.length,
-                    promedioVentaDiaria: ventas.length > 0 ? ventas.reduce((sum, venta) => sum + venta.total, 0) / Object.keys(ventasPorDia).length : 0
-                }
-            };
-        } catch (error) {
-            return {
-                exito: false,
-                mensaje: "Error al obtener ventas mensuales",
-                error: error.message
-            };
-        }
-    }
-
-    static async obtenerProductosMasVendidos(tiendaId, limite = 5) {
-        try {
-            const pedidosRef = collection(db, 'tiendas', tiendaId, 'pedidos');
-            const snapshot = await getDocs(pedidosRef);
-            
-            // Mapa para contar ventas por producto
-            const productosVendidos = new Map();
-            
-            snapshot.docs.forEach(doc => {
-                const pedido = doc.data();
-                pedido.productos.forEach(producto => {
-                    const actual = productosVendidos.get(producto.id) || {
-                        id: producto.id,
-                        nombre: producto.nombre,
-                        cantidadTotal: 0,
-                        ventasTotal: 0,
-                        ultimaVenta: pedido.fecha
-                    };
-                    actual.cantidadTotal += producto.cantidad;
-                    actual.ventasTotal += producto.precio * producto.cantidad;
-                    if (pedido.fecha > actual.ultimaVenta) {
-                        actual.ultimaVenta = pedido.fecha;
-                    }
-                    productosVendidos.set(producto.id, actual);
-                });
-            });
-
-            // Convertir a array y ordenar
-            const ranking = Array.from(productosVendidos.values())
-                .sort((a, b) => b.ventasTotal - a.ventasTotal)
-                .slice(0, limite);
-
-            return {
-                exito: true,
-                datos: ranking
-            };
-        } catch (error) {
-            return {
-                exito: false,
-                mensaje: "Error al obtener productos más vendidos",
-                error: error.message
-            };
-        }
-    }
-
-    static async obtenerHorariosVenta(tiendaId) {
-        try {
-            const pedidosRef = collection(db, 'tiendas', tiendaId, 'pedidos');
-            const snapshot = await getDocs(pedidosRef);
-            
-            // Agrupar ventas por hora
-            const ventasPorHora = new Array(24).fill(0).map(() => ({
-                cantidad: 0,
-                total: 0
-            }));
-
-            snapshot.docs.forEach(doc => {
-                const pedido = doc.data();
-                const hora = new Date(pedido.fecha).getHours();
-                ventasPorHora[hora].cantidad += 1;
-                ventasPorHora[hora].total += pedido.total;
-            });
-
-            // Encontrar horas pico
-            const horasPico = ventasPorHora
-                .map((datos, hora) => ({ hora, ...datos }))
-                .sort((a, b) => b.cantidad - a.cantidad)
-                .slice(0, 3);
-
-            return {
-                exito: true,
-                datos: {
-                    ventasPorHora,
-                    horasPico,
-                    resumen: {
-                        horasMasVentas: horasPico.map(h => h.hora),
-                        promedioVentasPorHora: snapshot.docs.length / 24
-                    }
-                }
-            };
-        } catch (error) {
-            return {
-                exito: false,
-                mensaje: "Error al obtener horarios de venta",
                 error: error.message
             };
         }
@@ -193,7 +70,6 @@ class VentasMetricasService {
                 cliente: datosVenta.cliente,
                 medioPago: datosVenta.medioPago,
                 cantidadProductos: datosVenta.productos.reduce((sum, p) => sum + p.cantidad, 0),
-                // Agregar más métricas específicas
                 hora: new Date(datosVenta.fecha).getHours(),
                 dia: new Date(datosVenta.fecha).getDay(),
                 mes: new Date(datosVenta.fecha).getMonth() + 1,
@@ -211,6 +87,67 @@ class VentasMetricasService {
             return {
                 exito: false,
                 mensaje: "Error al registrar métricas de venta",
+                error: error.message
+            };
+        }
+    }
+
+    static async obtenerProductosMasVendidos(tiendaId, limite = 5) {
+        try {
+            if (!tiendaId) {
+                throw new Error('tiendaId es requerido');
+            }
+
+            console.log('Fetching productos más vendidos for:', tiendaId);
+
+            // Datos de prueba estáticos
+            const productosPrueba = [
+                {
+                    id: 'prod1',
+                    nombre: 'Producto 1',
+                    cantidadVendida: 150,
+                    totalVentas: 1500000,
+                    porcentaje: 30
+                },
+                {
+                    id: 'prod2',
+                    nombre: 'Producto 2',
+                    cantidadVendida: 120,
+                    totalVentas: 1200000,
+                    porcentaje: 25
+                },
+                {
+                    id: 'prod3',
+                    nombre: 'Producto 3',
+                    cantidadVendida: 100,
+                    totalVentas: 1000000,
+                    porcentaje: 20
+                },
+                {
+                    id: 'prod4',
+                    nombre: 'Producto 4',
+                    cantidadVendida: 80,
+                    totalVentas: 800000,
+                    porcentaje: 15
+                },
+                {
+                    id: 'prod5',
+                    nombre: 'Producto 5',
+                    cantidadVendida: 50,
+                    totalVentas: 500000,
+                    porcentaje: 10
+                }
+            ];
+
+            return {
+                exito: true,
+                datos: productosPrueba.slice(0, limite)
+            };
+        } catch (error) {
+            console.error('Error in obtenerProductosMasVendidos:', error);
+            return {
+                exito: false,
+                mensaje: "Error al obtener productos más vendidos",
                 error: error.message
             };
         }
