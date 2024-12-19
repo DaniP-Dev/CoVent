@@ -3,6 +3,10 @@ import React, { useState } from 'react';
 import PedidoService from '@/services/PedidoService';
 import CarritoService from '@/services/CarritoService';
 
+// Valores por defecto
+const CORREO_DEFAULT = 'prueba@prueba.com';
+const CONTRASEÑA_DEFAULT = '123456';
+
 // Componente de formulario
 const FormularioCompra = ({ 
   correo,
@@ -65,8 +69,8 @@ const FormularioCompra = ({
 // Componente principal que orquesta todo
 const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {} }) => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
-  const [correo, setCorreo] = useState('');
-  const [contrasena, setContrasena] = useState('');
+  const [correo, setCorreo] = useState(CORREO_DEFAULT);
+  const [contrasena, setContrasena] = useState(CONTRASEÑA_DEFAULT);
   const [medioPago, setMedioPago] = useState('');
   const [error, setError] = useState('');
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);

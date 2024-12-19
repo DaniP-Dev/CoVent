@@ -80,66 +80,67 @@ class CalculadoraCarrito {
 
 // Clase principal del servicio
 class CarritoService {
-    static agregarProducto(producto, cantidad = 1) {
-        if (!ValidadorCarrito.validarProducto(producto)) {
+    static STORAGE_KEY = 'carrito';
+
+    static agregarProducto(producto) {
+        try {
+            // Obtener carrito actual
+            const carritoActual = this.obtenerCarrito();
+            
+            // Buscar si el producto ya existe
+            const index = carritoActual.findIndex(item => item.id === producto.id);
+            
+            if (index >= 0) {
+                // Si existe, actualizar cantidad (máximo 10)
+                if (carritoActual[index].cantidad < 10) {
+                    carritoActual[index].cantidad += 1;
+                }
+            } else {
+                // Si no existe, agregar nuevo producto
+                carritoActual.push({
+                    id: producto.id,
+                    nombre: producto.details?.nombre || producto.nombre,
+                    precio: producto.details?.precio || producto.precio,
+                    imagen: producto.details?.imagen || producto.imagen,
+                    cantidad: 1
+                });
+            }
+
+            // Guardar en localStorage
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(carritoActual));
+
+            return {
+                exito: true,
+                mensaje: 'Producto agregado al carrito'
+            };
+        } catch (error) {
+            console.error('Error al agregar al carrito:', error);
             return {
                 exito: false,
-                mensaje: "Producto no válido"
+                mensaje: 'Error al agregar al carrito'
             };
         }
-
-        let carrito = AlmacenCarrito.obtener();
-        let i = 0;
-        let productoExistente = null;
-        
-        while (i < carrito.length && !productoExistente) {
-            if (carrito[i].id === producto.id) {
-                productoExistente = carrito[i];
-            }
-            i = i + 1;
-        }
-
-        if (productoExistente) {
-            if (!ValidadorCarrito.validarCantidad(productoExistente.cantidad, cantidad)) {
-                return {
-                    exito: false,
-                    mensaje: "No puedes agregar más de 10 unidades del mismo producto"
-                };
-            }
-            productoExistente.cantidad = productoExistente.cantidad + cantidad;
-        } else {
-            let nuevoProducto = {
-                id: producto.id,
-                nombre: producto.nombre,
-                precio: producto.precio,
-                imagen: producto.imagen,
-                cantidad: cantidad
-            };
-            carrito.push(nuevoProducto);
-        }
-
-        AlmacenCarrito.guardar(carrito);
-        return {
-            exito: true,
-            mensaje: "Producto agregado al carrito",
-            carrito: carrito
-        };
     }
 
     static obtenerCarrito() {
-        return AlmacenCarrito.obtener();
+        try {
+            const carrito = localStorage.getItem(this.STORAGE_KEY);
+            return carrito ? JSON.parse(carrito) : [];
+        } catch (error) {
+            console.error('Error al obtener carrito:', error);
+            return [];
+        }
     }
 
     static calcularTotales(productos) {
-        return CalculadoraCarrito.calcularTotales(productos);
+        return productos.reduce((acc, item) => ({
+            suma: acc.suma + (item.precio * item.cantidad),
+            cantidad: acc.cantidad + item.cantidad
+        }), { suma: 0, cantidad: 0 });
     }
 
     static limpiarCarrito() {
-        AlmacenCarrito.limpiar();
-        return {
-            exito: true,
-            mensaje: "Carrito limpiado exitosamente"
-        };
+        localStorage.removeItem(this.STORAGE_KEY);
     }
 }
 

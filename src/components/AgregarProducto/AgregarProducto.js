@@ -281,63 +281,58 @@ const AgregarProducto = () => {
             return;
         }
 
-        // Validar campos requeridos
-        if (!formData.loteId || !formData.cantidad || !formData.categoria) {
-            mostrarNotificacion('Por favor completa todos los campos requeridos', 'error');
-            return;
-        }
+        try {
+            // Obtener el precio del lote seleccionado
+            const precioString = formData.precioFinal.replace(/\./g, '').replace(',', '.');
+            // Convertir a centavos multiplicando por 100
+            const precioEnCentavos = Math.round(parseFloat(precioString) * 100);
 
-        // Verificar que la cantidad no exceda el stock del lote
-        if (parseInt(formData.cantidad) > loteSeleccionado.cantidad) {
-            mostrarNotificacion('La cantidad excede el stock disponible', 'error');
-            return;
-        }
+            const nuevoProducto = {
+                nombre: loteSeleccionado.nombreProducto,
+                precio: precioEnCentavos, // Guardar precio en centavos
+                stock: parseInt(formData.cantidad),
+                categoria: formData.categoria || 'General',
+                descripcion: '',
+                imagen: 'default.jpg'
+            };
 
-        // 1. Crear el producto
-        const nuevoProducto = {
-            nombre: loteSeleccionado.nombreProducto,
-            precio: parseFloat(formData.precioFinal.replace(/[^\d.-]/g, '')),
-            stock: parseInt(formData.cantidad),
-            categoria: formData.categoria,
-            imagen: formData.imagen || 'default.jpg',
-            descripcion: loteSeleccionado.descripcion || '',
-            fechaCreacion: new Date().toISOString()
-        };
+            // Usar el uid para operaciones administrativas
+            const resultado = await ProductoService.crearProducto(usuario.uid, nuevoProducto);
 
-        // Usar el uid para operaciones administrativas
-        const resultado = await ProductoService.crearProducto(usuario.uid, nuevoProducto);
+            if (resultado.exito) {
+                // 2. Actualizar el lote restando la cantidad usada
+                const cantidadARestar = -parseInt(formData.cantidad); // Negativo para restar
+                const resultadoLote = await LoteService.actualizarCantidadLote(
+                    usuario.uid,
+                    formData.loteId,
+                    cantidadARestar,
+                    `Cantidad transferida a producto: ${resultado.id}`
+                );
 
-        if (resultado.exito) {
-            // 2. Actualizar el lote restando la cantidad usada
-            const cantidadARestar = -parseInt(formData.cantidad); // Negativo para restar
-            const resultadoLote = await LoteService.actualizarCantidadLote(
-                usuario.uid,
-                formData.loteId,
-                cantidadARestar,
-                `Cantidad transferida a producto: ${resultado.id}`
-            );
-
-            if (resultadoLote.exito) {
-                mostrarToastFlotante(`¡Producto "${nuevoProducto.nombre}" creado!`);
-                // Resetear formulario
-                setFormData({
-                    loteId: '',
-                    cantidad: '',
-                    ganancia: '',
-                    gananciaMonetaria: '',
-                    iva: '0',
-                    precioFinal: '',
-                    categoria: '',
-                    imagen: null
-                });
-                setLoteSeleccionado(null);
+                if (resultadoLote.exito) {
+                    mostrarToastFlotante(`¡Producto "${nuevoProducto.nombre}" creado!`);
+                    // Resetear formulario
+                    setFormData({
+                        loteId: '',
+                        cantidad: '',
+                        ganancia: '',
+                        gananciaMonetaria: '',
+                        iva: '0',
+                        precioFinal: '',
+                        categoria: '',
+                        imagen: null
+                    });
+                    setLoteSeleccionado(null);
+                } else {
+                    // Si falla la actualización del lote, deberíamos eliminar el producto creado
+                    // TODO: Implementar rollback del producto
+                    mostrarNotificacion('Error al actualizar el inventario', 'error');
+                }
             } else {
-                // Si falla la actualización del lote, deberíamos eliminar el producto creado
-                // TODO: Implementar rollback del producto
-                mostrarNotificacion('Error al actualizar el inventario', 'error');
+                mostrarNotificacion(resultado.mensaje, 'error');
             }
-        } else {
-            mostrarNotificacion(resultado.mensaje, 'error');
+        } catch (error) {
+            mostrarNotificacion(error.message, 'error');
         }
     };
 

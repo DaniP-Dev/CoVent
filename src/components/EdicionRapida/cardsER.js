@@ -8,12 +8,12 @@ const CardER = ({ producto, onEditar, onEliminar }) => {
     const formatearPrecio = (valor) => {
         if (!valor && valor !== 0) return '';
         
-        // Primero remover el punto decimal existente
-        const valorLimpio = valor.toString().replace('.', '');
+        // Convertir a string y asegurar que tenga al menos 3 dígitos
+        const valorStr = valor.toString().padStart(3, '0');
         
-        // Ahora sí separar los últimos dos dígitos para decimales
-        const enteros = valorLimpio.slice(0, -2);
-        const decimales = valorLimpio.slice(-2);
+        // Separar los últimos dos dígitos para decimales
+        const enteros = valorStr.slice(0, -2);
+        const decimales = valorStr.slice(-2);
         
         // Reconstruir el número con el formato correcto
         const numero = parseFloat(`${enteros}.${decimales}`);
@@ -44,7 +44,7 @@ const CardER = ({ producto, onEditar, onEliminar }) => {
                 {detalles.descripcion || 'Sin descripción'}
             </p>
             <div className="text-sm text-gray-500 mb-3">
-                Categoría: {detalles.categoria || 'Sin categor��a'}
+                Categoría: {detalles.categoria || 'Sin categoría'}
             </div>
             <div className="flex justify-center space-x-1 mt-4">
                 <button 
