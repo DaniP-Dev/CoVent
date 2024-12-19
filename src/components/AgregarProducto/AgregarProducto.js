@@ -28,6 +28,7 @@ const AgregarProducto = () => {
     const [toastFlotante, setToastFlotante] = useState({ visible: false, mensaje: '' });
     const [notificacion, setNotificacion] = useState({ mensaje: '', tipo: '', visible: false });
     const [inputActivo, setInputActivo] = useState(false);
+    const [modoNuevaCategoria, setModoNuevaCategoria] = useState(false);
     const router = useRouter();
 
     // Cargar lotes con snapshot
@@ -340,6 +341,16 @@ const AgregarProducto = () => {
         }
     };
 
+    const handleCategoriaChange = (e) => {
+        const value = e.target.value;
+        if (value === 'nueva') {
+            setModoNuevaCategoria(true);
+            setFormData(prev => ({ ...prev, categoria: '' }));
+        } else {
+            setFormData(prev => ({ ...prev, categoria: value }));
+        }
+    };
+
     return (
         <div className="h-full bg-white/30 backdrop-blur-sm rounded-lg shadow-lg">
             <div className="p-4 flex flex-col h-full">
@@ -374,15 +385,22 @@ const AgregarProducto = () => {
                                 ))}
                             </select>
 
-                            <input 
-                                type="number"
-                                name="cantidad"
-                                value={formData.cantidad}
-                                onChange={handleInputChange}
-                                placeholder="Cantidad"
-                                max={loteSeleccionado?.cantidad || 0}
-                                className="w-full p-1.5 border rounded text-sm"
-                            />
+                            <div className="grid grid-cols-2 gap-4 items-center">
+                                <div>
+                                    <input 
+                                        type="number"
+                                        name="cantidad"
+                                        value={formData.cantidad}
+                                        onChange={handleInputChange}
+                                        placeholder="Cantidad"
+                                        max={loteSeleccionado?.cantidad || 0}
+                                        className="w-full p-1.5 border rounded text-sm"
+                                    />
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    Existencias disponibles del lote: {loteSeleccionado?.cantidad || 0}
+                                </div>
+                            </div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
@@ -425,13 +443,20 @@ const AgregarProducto = () => {
                                 <option value="19">IVA 19%</option>
                             </select>
 
-                            <input 
-                                type="text"
-                                value={formData.precioFinal}
-                                placeholder="Precio Final"
-                                className="w-full p-1.5 border rounded text-sm bg-gray-100"
-                                disabled
-                            />
+                            <div className="grid grid-cols-2 gap-4 items-center">
+                                <div>
+                                    <input 
+                                        type="text"
+                                        value={formData.precioFinal}
+                                        placeholder="Precio Final"
+                                        className="w-full p-1.5 border rounded text-sm bg-gray-100"
+                                        disabled
+                                    />
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    Precio para la venta
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -444,35 +469,29 @@ const AgregarProducto = () => {
                                 accept="image/*"
                             />
                             
-                            <div className="flex gap-2">
+                            {!modoNuevaCategoria ? (
                                 <select
                                     name="categoria"
                                     value={formData.categoria}
-                                    onChange={handleInputChange}
-                                    className="flex-1 p-1.5 border rounded text-sm"
+                                    onChange={handleCategoriaChange}
+                                    className="w-full p-1.5 border rounded text-sm"
                                 >
                                     <option value="">Seleccionar Categoría</option>
                                     {categorias.map(cat => (
                                         <option key={cat} value={cat}>{cat}</option>
                                     ))}
+                                    <option value="nueva">+ Nueva Categoría</option>
                                 </select>
-                                
-                                <div className="flex gap-1">
-                                    <input
-                                        type="text"
-                                        value={nuevaCategoria}
-                                        onChange={(e) => setNuevaCategoria(e.target.value)}
-                                        placeholder="Nueva categoría"
-                                        className="p-1.5 border rounded text-sm"
-                                    />
-                                    <button
-                                        onClick={handleNuevaCategoria}
-                                        className="px-3 bg-orange-500 text-white rounded hover:bg-orange-600"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            </div>
+                            ) : (
+                                <input
+                                    type="text"
+                                    name="categoria"
+                                    value={formData.categoria}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, categoria: e.target.value }))}
+                                    placeholder="Escribir nueva categoría"
+                                    className="w-full p-1.5 border rounded text-sm"
+                                />
+                            )}
                         </div>
                     </div>
 
