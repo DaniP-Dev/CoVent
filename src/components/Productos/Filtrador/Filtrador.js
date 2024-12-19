@@ -10,6 +10,7 @@ const Filtrador = () => {
     const params = useParams();
     const [productos, setProductos] = useState([]);
     const [categorias, setCategorias] = useState(['General']);
+    const [tiendaId, setTiendaId] = useState(null);
     
     // Estados para manejar la búsqueda y la paginación
     const [textoBusqueda, setTextoBusqueda] = useState('');
@@ -31,17 +32,18 @@ const Filtrador = () => {
 
         const iniciarObservadores = async () => {
             try {
-                const tiendaId = await ProductoService.obtenerTiendaIdPorSlug(params.slug);
+                const id = await ProductoService.obtenerTiendaIdPorSlug(params.slug);
+                setTiendaId(id);
                 
                 // Observar productos
                 unsubscribeProductos = ProductoService.observarProductos(
-                    tiendaId,
+                    id,
                     (productosActualizados) => setProductos(productosActualizados)
                 );
 
                 // Observar categorías
                 unsubscribeCategorias = ProductoService.observarCategorias(
-                    tiendaId,
+                    id,
                     (categoriasActualizadas) => setCategorias(categoriasActualizadas)
                 );
             } catch (error) {
@@ -256,11 +258,13 @@ const Filtrador = () => {
                 {/* Contenedor de productos con padding para el footer */}
                 <div className="p-4 pb-20">
                     {/* Grid de productos */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {productosActuales.map(producto => (
-                            <div key={producto.id} className="h-full">
-                                <Card producto={producto} />
-                            </div>
+                            <Card 
+                                key={producto.id} 
+                                producto={producto}
+                                tiendaId={tiendaId}
+                            />
                         ))}
                     </div>
 

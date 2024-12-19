@@ -2,7 +2,7 @@ import React from 'react';
 import BotonComprar from './BotonComprar/BotonComprar';
 import BotonCarrito from './BotonCarrito/BotonCarrito';
 
-const Card = ({ producto }) => {
+const Card = ({ producto, tiendaId }) => {
     // Verificar si el producto viene dentro de details
     const detalles = producto.details || producto;
     
@@ -53,8 +53,8 @@ const Card = ({ producto }) => {
                         Stock: {stock}
                     </p>
                     <div className="flex gap-2 mt-2">
-                        <BotonCarrito producto={producto} />
-                        <BotonComprar producto={producto} />
+                        <BotonCarrito producto={producto} tiendaId={tiendaId} />
+                        <BotonComprar producto={producto} tiendaId={tiendaId} />
                     </div>
                 </div>
             </div>

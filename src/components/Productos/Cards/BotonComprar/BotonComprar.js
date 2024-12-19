@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import PedidoService from '@/services/PedidoService';
+import CompraService from '@/services/CompraService';
 import CarritoService from '@/services/CarritoService';
+import ProductoService from '@/services/ProductoService';
+import VentasMetricasService from '@/services/metricas/VentasMetricasService';
+import ClientesMetricasService from '@/services/metricas/ClientesMetricasService';
 
 // Valores por defecto
 const CORREO_DEFAULT = 'prueba@prueba.com';
@@ -67,7 +70,7 @@ const FormularioCompra = ({
 );
 
 // Componente principal que orquesta todo
-const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {} }) => {
+const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {}, tiendaId }) => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [correo, setCorreo] = useState(CORREO_DEFAULT);
   const [contrasena, setContrasena] = useState(CONTRASEÑA_DEFAULT);
@@ -76,42 +79,62 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {} }) => {
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
 
   const handleComprar = async () => {
-    const validacion = PedidoService.validarPedido({
-      cliente: { correo, contrasena },
-      medioPago
-    });
-
-    if (!validacion.esValido) {
-      setError(validacion.errores[0]);
-      return;
-    }
-
     try {
+      // Primero verificar el carrito
       const carrito = CarritoService.obtenerCarrito();
       if (!carrito || carrito.length === 0) {
         setError('El carrito está vacío');
         return;
       }
 
-      const resultado = await PedidoService.crearPedido('tienda1', {
+      // Calcular total
+      const totalCompra = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+
+      // Luego validar el pedido completo
+      const validacion = CompraService.validarCompra({
+        cliente: { correo, contrasena },
+        medioPago,
+        productos: carrito,
+        total: totalCompra
+      });
+
+      if (!validacion.esValido) {
+        setError(validacion.errores[0]);
+        return;
+      }
+
+      // Crear el pedido
+      const resultado = await CompraService.crearCompra(tiendaId, {
         cliente: { correo },
         productos: carrito,
-        medioPago
+        medioPago,
+        total: totalCompra
       });
 
       if (resultado.exito) {
-        CarritoService.limpiarCarrito();
-        setMostrarNotificacion(true);
-        setMostrarFormulario(false);
-        
-        setTimeout(() => {
-          setMostrarNotificacion(false);
-          onCompraExitosa();
-        }, 1000);
+        try {
+          // Actualizar solo el stock por ahora
+          await Promise.all(
+            carrito.map(item => 
+              ProductoService.actualizarStock(resultado.tiendaId, item.id, -item.cantidad)
+            )
+          );
+
+          CarritoService.limpiarCarrito();
+          setMostrarNotificacion(true);
+          setMostrarFormulario(false);
+
+          setTimeout(() => {
+            setMostrarNotificacion(false);
+            onCompraExitosa();
+          }, 1000);
+        } catch (error) {
+          console.error('Error actualizando stock:', error);
+          setError('Error al actualizar inventario');
+        }
       } else {
         setError(resultado.mensaje);
       }
-
     } catch (error) {
       setError('Error al procesar la compra');
       console.error('Error:', error);
@@ -124,7 +147,7 @@ const BotonComprar = ({ esCarrito = false, onCompraExitosa = () => {} }) => {
         onClick={() => setMostrarFormulario(true)}
         className="bg-orange-500 text-white p-2 rounded-md hover:bg-orange-600 w-full"
       >
-        {esCarrito ? '💸Comprar Carrito💸' : '💸'}
+        {esCarrito ? '💸Comprar Carrito' : '💸'}
       </button>
 
       {mostrarFormulario && (
