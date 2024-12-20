@@ -64,8 +64,8 @@ const SideBar = () => {
 
     const botonesMenu = [
         { icono: '🏠', texto: 'Inicio', ruta: '/admin/dashboard/' },
-        { icono: '👤', texto: 'Perfil' },
         { icono: '📦', texto: 'Productos', ruta: '/admin/dashboard/productos' },
+        { icono: '🤖', texto: 'Emmanuel', ruta: '/admin/dashboard/emmanuel' },
         { icono: '⚙️', texto: 'Configuración' }
     ];
 

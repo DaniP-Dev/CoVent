@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "chart.js": "^4.4.7",
     "firebase": "^11.1.0",
     "geist": "^1.3.1",
