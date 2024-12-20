@@ -16,8 +16,8 @@
     .emmanuel-container {
         height: calc(100vh - 64px);
         padding: 0;
-        margin-left: 2.5rem;
-        width: calc(100% - 2.5rem);
+        margin-left: 0;
+        width: 100%;
     }
 
     .messages-container {
